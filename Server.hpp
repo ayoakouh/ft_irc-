@@ -14,11 +14,13 @@
 #include <unistd.h>
 #include <cstring>
 #include <cerrno>
+#include <poll.h>
 
 
+
+std::vector<struct pollfd> _pollFds;
 
 class Server {
-
 private:
     int port;
     std::string _password;
