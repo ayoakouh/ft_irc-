@@ -7,6 +7,9 @@
 class Client {
     int fd;
     std::string buffer;
+    std::string nickname;
+    std::string username;
+    bool authentication;
 
 }
 
@@ -14,5 +17,5 @@ class Client {
 std::vector<Client> Clients;
 
 
-
+//hey;
 #endif 
