@@ -15,16 +15,18 @@
 #include <cstring>
 #include <cerrno>
 #include <poll.h>
+#include <vector>
 
 
 
-std::vector<struct pollfd> _pollFds;
 
 class Server {
 private:
     int port;
     std::string _password;
     int Server_fd;
+    int FdPoll;
+    std::vector<struct pollfd> _pollFds;
 public:
     Server(int port, const std::string& password);
     ~Server();
@@ -36,9 +38,10 @@ public:
     void StartListen();
     void AcceptClient();
     void HandelClient(int fd);
-
+    void CreatRpoll();
 
 };
 
+// std::vector<struct pollfd> _pollFds;
 
 #endif

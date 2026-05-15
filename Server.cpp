@@ -86,15 +86,23 @@ void Server::HandelClient(int fd)
         std::cout << "Received: [" << buffer << "]\n";
     }
 }
-// void Server::HandelClient(int fd)
-// {
-//     char buffer[1024];
-//     int BytesReceived = recv(fd, buffer, sizeof(buffer) - 1, 0);
-//     if(BytesReceived <= 0)
-//     {
-//         close(fd);
-//         return ;
-//     }
-//     buffer[BytesReceived] = '\0';
-//     std::cout<< "Received: " << BytesReceived << " bytes\n";
-// }
+
+void Server::CreatEpoll()
+{
+    FdPoll = epoll_create1(0);
+    if(FdPoll < 0)
+        throw std::runtime_error("Failed to create epoll  !";)
+}
+
+void Server::HandelClient(int fd)
+{
+    char buffer[1024];
+    int BytesReceived = recv(fd, buffer, sizeof(buffer) - 1, 0);
+    if(BytesReceived <= 0)
+    {
+        close(fd);
+        return ;
+    }
+    buffer[BytesReceived] = '\0';
+    std::cout<< "Received: " << BytesReceived << " bytes\n";
+}
