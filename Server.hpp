@@ -39,6 +39,7 @@ public:
     void AddClientes(int fd);
     void RemoveClient(int fd);
 };
+//canonical form
 
 
 #endif
