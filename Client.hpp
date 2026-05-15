@@ -10,7 +10,6 @@ class Client {
     std::string nickname;
     std::string username;
     bool authentication;
-
 }
 
 
