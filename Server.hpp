@@ -21,6 +21,7 @@
 #define MAX_EVENTS 64
 class Server {
 private:
+    std::map<std::string, Channel> serv_channel;
     int port;
     std::string _password;
     int Server_fd;
