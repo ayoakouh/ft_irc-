@@ -1,7 +1,7 @@
 #include "Channel.hpp"
 
 Channel::Channel(std::string &channel_name)
-	:name(channel_name), invite_only(false)
+	:name(channel_name), invite_only(false), channel_size(-1)
 {
 	std::cout << "Channel parametrized constructor.\n";//must be removed after
 }
@@ -103,4 +103,9 @@ const std::vector<int> &Channel::get_members(void)
 bool Channel::get_invite_only(void)
 {
 	return (invite_only);
+}
+
+int Channel::get_channel_size(void)
+{
+	return (channel_size);
 }

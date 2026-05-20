@@ -3,7 +3,6 @@
 
 
 
-
 #include <iostream>
 #include<string>
 #include <sys/types.h>
@@ -22,7 +21,8 @@
 class Server {
 private:
     std::map<std::string, Channel> serv_channel;
-	std::vector<int> clients;
+	std::vector<Client> clients;
+	std::vector<int> clients;//choose this or the above
     int port;
     std::string _password;
     int Server_fd;
