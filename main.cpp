@@ -13,13 +13,21 @@ int main(int argc, char **argv)
 
     try
     {
+		std::vector<std::string> s; // "just for testing"
         int port = std::atoi(argv[1]);
         std::string password = argv[2];
 
         Server server(port, password);
 
         server.CreateServer();
+		if (s[0] == "JOIN")
+		{
+			
+		}
+		else if (s[0] == "INVITE")
+		{
 
+		}
         std::cout << "Server is running..." << std::endl;
         while (true)
         {

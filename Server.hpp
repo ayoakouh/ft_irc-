@@ -22,6 +22,7 @@
 class Server {
 private:
     std::map<std::string, Channel> serv_channel;
+	std::vector<int> clients;
     int port;
     std::string _password;
     int Server_fd;

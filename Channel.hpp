@@ -2,6 +2,7 @@
 #define CHANNEL_HPP
 
 #include <iostream>
+#include <vector>
 
 class Channel
 {
@@ -9,17 +10,27 @@ class Channel
         std::string name;
         std::vector<int> members;
         std::vector<int> op;
-    public:
+		bool		invite_only;
+		std::vector<int> inv_list;
         Channel(void);
+    public:
+		Channel(std::string &channel_name);
         ~Channel(void);
         Channel(const Channel &obj);
         Channel &operator=(const Channel &obj);
-        add(int fd);
-        pop(int fd);
-        check_member(int fd);
-        become_op(int fd);
-        pop_op(int fd);
-        check_op(int fd);
+        void	add(int fd);
+        void	pop(int fd);
+        bool	check_member(int fd);
+        void	become_op(int fd);
+        void	pop_op(int fd);
+        bool	check_op(int fd);
+		void	add_invite(int fd);
+		void	pop_invite(int fd);
+		bool	check_invite(int fd);
+		const std::string &get_name(void);
+		const std::vector<int> &get_members(void);
+		bool get_invite_only(void);
+
 };
 
 

@@ -141,6 +141,7 @@ void Server::run()
                 client_fd = accept(Server_fd, NULL, NULL);
                 if(client_fd < 0)
                     continue;
+				clients.push_back(client_fd);
                 AddClientes(client_fd);
             }
             else
