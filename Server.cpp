@@ -1,4 +1,4 @@
-#include "Server.hpp"
+https://github.com/TheodoreXI/tracker.git #include "Server.hpp"
 
 Server::Server(int port, const std::string& password) : port(port), _password(password), Server_fd(-1)
 {
@@ -141,6 +141,7 @@ void Server::run()
                 client_fd = accept(Server_fd, NULL, NULL);
                 if(client_fd < 0)
                     continue;
+				clients.push_back(client_fd);
                 AddClientes(client_fd);
             }
             else

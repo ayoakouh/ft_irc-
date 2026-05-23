@@ -3,7 +3,6 @@
 
 
 
-
 #include <iostream>
 #include<string>
 #include <sys/types.h>
@@ -21,6 +20,9 @@
 #define MAX_EVENTS 64
 class Server {
 private:
+    std::map<std::string, Channel> serv_channel;
+	std::vector<Client> clients;
+	std::vector<int> clients;//choose this or the above
     int port;
     std::string _password;
     int Server_fd;
@@ -39,6 +41,7 @@ public:
     void AddClientes(int fd);
     void RemoveClient(int fd);
 };
+//canonical form
 
 
 #endif
