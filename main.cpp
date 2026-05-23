@@ -1,7 +1,5 @@
 #include "Server.hpp"
-
-
-#include "Server.hpp"
+#include <cstdlib>
 
 int main(int argc, char **argv)
 {

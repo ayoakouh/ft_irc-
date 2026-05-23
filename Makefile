@@ -2,7 +2,7 @@ CPP = c++
 NAME = a.out
 
 FLAGS = -Wall -Wextra -Werror -std=c++98 -MMD
-SRC = main.cpp Server.cpp
+SRC = main.cpp Server.cpp Client.cpp Channel.cpp Join.cpp Invite.cpp Kick.cpp
 OBJ = $(SRC:.cpp=.o)
 DEPS = ${OBJ:.o=.d}
 

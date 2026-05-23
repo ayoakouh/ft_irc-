@@ -1,8 +1,14 @@
-https://github.com/TheodoreXI/tracker.git #include "Server.hpp"
+#include "Server.hpp"
+#include <sstream>
 
 Server::Server(int port, const std::string& password) : port(port), _password(password), Server_fd(-1)
 {
     std::cout<< "intialized the attributes"<<std::endl;
+}
+
+std::map<std::string, Channel> &Server::getChannels()
+{
+    return serv_channel;
 }
 
 Server::~Server()
@@ -111,8 +117,10 @@ std::vector<std::string> Server::parsing_handler(std::string buffer)
     return Message;
 }
 
-void Server::command_handeler(Server info, std::vector<std::string> Message)
+void Server::command_handeler(int fd, std::vector<std::string> Message)
 {
+    if (Message.empty())
+        return;
     if (Message[0] == "MODE")
     {}
     else if (Message[0] == "PRIVMSG")
@@ -121,15 +129,15 @@ void Server::command_handeler(Server info, std::vector<std::string> Message)
     {}
     else if (Message[0] == "JOIN")
     {
-        join(info.clients_map->first, Message, info);
+        join(fd, Message, *this);
     }
     else if (Message[0] == "INVITE")
     {
-        invite(info.clients_map->first, Message, info);
+        invite(fd, Message, *this);
     }
     else if (Message[0] == "KICK")
     {
-        kick(info.clients_map->first, Message, info);
+        kick(fd, Message, *this);
     }
     else
     {
@@ -153,7 +161,7 @@ void Server::HandelClient(int fd)
     }
     buffer[BytesReceived] = '\0';
     Message = parsing_handler(buffer);
-    command_handeler(this,Message);
+    command_handeler(fd, Message);
     std::cout << "Received: [" << buffer << "]\n";
 }
 
@@ -186,6 +194,7 @@ void Server::AddClientes(int fd)
 void Server::RemoveClient(int fd)
 {
     epoll_ctl(epollFd, EPOLL_CTL_DEL, fd, NULL);
+    clients_map.erase(fd);
     close(fd);
     std::cout << "Client is removed — fd=" << fd << "\n";
 }
@@ -208,7 +217,7 @@ void Server::run()
                 client_fd = accept(Server_fd, NULL, NULL);
                 if(client_fd < 0)
                     continue;
-				clients.push_back(client_fd);
+				clients_map[client_fd] = Client(client_fd);
                 AddClientes(client_fd);
             }
             else
