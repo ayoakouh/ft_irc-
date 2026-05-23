@@ -1,7 +1,7 @@
 #include "Client.hpp"
 #include "Server.hpp"
 
-void kick(unsigned int fd, std::vector<std::string> &s, Server &serv)
+void  
 {
 	int target_fd;
 	if (s.size() != 2 && s.size() != 3)

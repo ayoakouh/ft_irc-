@@ -22,6 +22,7 @@ class Server {
 private:
     std::map<std::string, Channel> serv_channel;
 	std::vector<Client> clients;
+    std::map<int, Client> clients_map; // only for testing;
 	std::vector<int> clients;//choose this or the above
     int port;
     std::string _password;

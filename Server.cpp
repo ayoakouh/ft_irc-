@@ -75,9 +75,74 @@ void Server::AcceptClient()
     }
 }
 
+
+std::vector<std::string> Server::parsing_handler(std::string buffer)
+{
+    std::vector<std::string> Message;
+    bool has_trailing = false;
+    std::string str_buffer(buffer);
+    size_t pos;
+    std::string left;
+    std::string right;
+    std::string line;
+    std::stringstream tokens;
+    if (!str_buffer.empty() && str_buffer[0] == ':')
+    {
+        pos = str_buffer.find(' ');
+        if (pos != std::string::npos)
+            str_buffer = str_buffer.substr(pos + 1);
+    }
+    size_t pos_two = str_buffer.find(" :");
+    if (pos_two != std::string::npos)
+    {
+        right = str_buffer.substr(pos_two + 2);
+        str_buffer = str_buffer.substr(0,pos_two);
+        has_trailing = true;
+    }
+    std::stringstream tmp(str_buffer);
+    std::string word;
+    while (tmp >> word)
+        Message.push_back(word);
+
+
+    if (has_trailing)
+        Message.push_back(right);
+
+    return Message;
+}
+
+void Server::command_handeler(Server info, std::vector<std::string> Message)
+{
+    if (Message[0] == "MODE")
+    {}
+    else if (Message[0] == "PRIVMSG")
+    {}
+    else if (Message[0] == "TOPIC")
+    {}
+    else if (Message[0] == "JOIN")
+    {
+        join(info.clients_map->first, Message, info);
+    }
+    else if (Message[0] == "INVITE")
+    {
+        invite(info.clients_map->first, Message, info);
+    }
+    else if (Message[0] == "KICK")
+    {
+        kick(info.clients_map->first, Message, info);
+    }
+    else
+    {
+        std::cout << "Command not found : " << Message[0] << std::endl;
+    }
+}
+
+
+
 void Server::HandelClient(int fd)
 {
     char buffer[1024];
+    std::vector<std::string> Message;
     memset(buffer, 0, sizeof(buffer));
     int BytesReceived = recv(fd, buffer, sizeof(buffer) - 1, 0);
     if (BytesReceived <= 0)
@@ -87,6 +152,8 @@ void Server::HandelClient(int fd)
         return;
     }
     buffer[BytesReceived] = '\0';
+    Message = parsing_handler(buffer);
+    command_handeler(this,Message);
     std::cout << "Received: [" << buffer << "]\n";
 }
 
