@@ -3,10 +3,23 @@
 
 void kick(unsigned int fd, std::vector<std::string> &s, Server &serv)
 {
-	int target_fd;
+	int target_fd = -1;
 	if (s.size() != 2 && s.size() != 3)
 	{
 		std::cout << "wrong number of parameters.\n";
+		return ;
+	}
+	for (size_t i = 0; i < serv.clients.size(); i++)
+	{
+		if (serv.clients[i].getname() == s[1])
+		{
+			target_fd = serv.clients[i].getfd();
+			break;
+		}
+	}
+	if (target_fd == -1)
+	{
+		std::cerr << "the target client fd not found.\n";
 		return ;
 	}
 	//if no reason is provided use a default reason, maybe the name of the one getting kicked
@@ -14,9 +27,7 @@ void kick(unsigned int fd, std::vector<std::string> &s, Server &serv)
 	{
 		if (it->first == s[1])
 		{
-			//check if the nickname is connected to an fd on the server.
-	//if no client exist stop here and send error.
-			if (!it->second.check_member(fd))
+			if (!it->second.check_member(fd) || !it->second.check_member(target_fd))
 			{
 				std::cout << "the caller is not in the channel.\n";
 				return ;

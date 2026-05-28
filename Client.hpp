@@ -12,6 +12,7 @@ class Client {
     bool authentication;
 	public:
 		std::string &getname(void);//it returns nickname
+        int getfd(void); //it return fd
 };
 
 
