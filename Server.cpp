@@ -122,11 +122,17 @@ void Server::command_handeler(int fd, std::vector<std::string> Message)
     if (Message.empty())
         return;
     if (Message[0] == "MODE")
-    {}
+    {
+
+    }
     else if (Message[0] == "PRIVMSG")
-    {}
+    {
+
+    }
     else if (Message[0] == "TOPIC")
-    {}
+    {
+        
+    }
     else if (Message[0] == "JOIN")
     {
         join(fd, Message, *this);
