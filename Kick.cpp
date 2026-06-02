@@ -1,4 +1,3 @@
-#include "Client.hpp"
 #include "Server.hpp"
 
 void kick(unsigned int fd, std::vector<std::string> &s, Server &serv)

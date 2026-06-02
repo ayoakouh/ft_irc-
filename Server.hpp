@@ -15,7 +15,12 @@
 #include <cstring>
 #include <cerrno>
 #include <vector>
-#include <sys/epoll.h>
+
+#include <sys/event.h>
+#include <sys/time.h>
+
+#include "Channel.hpp"
+#include "Client.hpp"
 
 #include "Channel.hpp"
 #include "Client.hpp"
@@ -26,10 +31,11 @@ class Server {
 private:
     std::map<std::string, Channel> serv_channel;
     std::map<int, Client> clients_map;
+    std::map<int, std::string> client_buffers;
     int port;
-    std::string _password;
+    const std::string _password;
     int Server_fd;
-    int epollFd;
+    int kqueue_fd;
 public:
     Server(int port, const std::string& password);
     ~Server();
@@ -46,6 +52,8 @@ public:
     void CreatEpoll();
     void AddClientes(int fd);
     void RemoveClient(int fd);
+    void HandelNonBlocking(int fd);
+    void ExtractedMessages(int fd);
 };
 //canonical form
 
