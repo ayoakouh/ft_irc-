@@ -2,7 +2,7 @@
 #include <algorithm>
 
 Channel::Channel(std::string &channel_name)
-	:name(channel_name), invite_only(false), is_key(false), channel_size(-1)
+	:name(channel_name), invite_only(false), is_key(false), channel_size(-1), topic(""), topic_restricted(false)
 {
 	std::cout << "Channel parametrized constructor.\n";//must be removed after
 }
@@ -123,4 +123,31 @@ std::string &Channel::get_key(void)
 int Channel::get_channel_size(void)
 {
 	return (channel_size);
+}
+
+
+std::string Channel::getTopic()
+{
+	return topic;
+}
+
+void Channel::setTopic(const std::string &new_topic)
+{
+	topic = new_topic;
+}
+
+bool Channel::isTopicRestricted()
+{
+	return topic_restricted;
+}
+
+void Channel::setTopicRestricted(bool status)
+{
+	topic_restricted = status;
+}
+
+
+void Channel::set_invite_only(bool status_of_invite_only)
+{
+	invite_only = status_of_invite_only;
 }

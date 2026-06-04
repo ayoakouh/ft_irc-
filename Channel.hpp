@@ -15,6 +15,8 @@ class Channel
 		bool		is_key;
 		std::string key;
 		int			channel_size;
+        std::string topic; // TOPIC
+        bool topic_restricted; // TOPIC
         Channel(void);
     public:
 		Channel(std::string &channel_name);
@@ -34,8 +36,13 @@ class Channel
 		const std::vector<int> &get_members(void);
 		bool get_invite_only(void);
         int get_channel_size(void);
+        std::string getTopic(); // TOPIC
+        void setTopic(const std::string &new_topic); // TOPIC
+        bool isTopicRestricted(); // TOPIC
+        void setTopicRestricted(bool status); // TOPIC
 		bool check_key(void);// anass you implement this
 		std::string &get_key(void); // and this
+        void set_invite_only(bool status_of_invite_only);
 
 };
 

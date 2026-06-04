@@ -54,6 +54,7 @@ public:
     void RemoveClient(int fd);
     void HandelNonBlocking(int fd);
     void ExtractedMessages(int fd);
+    std::map<int, Client> &get_clients_map();
 };
 //canonical form
 
