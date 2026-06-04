@@ -72,6 +72,10 @@ void Server::StartListen()
     }
 }
 
+const std::string& Server::GetPassword() const
+{
+    return _password;
+}
 
 std::vector<std::string> Server::parsing_handler(std::string buffer)
 {
@@ -112,7 +116,19 @@ void Server::command_handeler(int fd, std::vector<std::string> Message)
 {
     if (Message.empty())
         return;
-    if (Message[0] == "MODE")
+    if(Message[0] == "PASS")
+    {
+        pass(fd, Message, *this);
+    }
+    else if (Message[0] == "NICK")
+    {
+        nick(fd, Message, *this);
+    }
+    else if (Message[0] == "USER")
+    {
+        user(fd, Message, *this);
+    }
+    else if (Message[0] == "MODE")
     {}
     else if (Message[0] == "PRIVMSG")
     { 
@@ -143,9 +159,9 @@ void Server::HandelClient(int fd)
 {
     char buffer[1024];
     std::vector<std::string> Message;
+    memset(buffer, 0, sizeof(buffer));
     while(1)
     {
-        memset(buffer, 0, sizeof(buffer));
         int BytesReceived = recv(fd, buffer, sizeof(buffer) - 1, 0);
         if(BytesReceived > 0)
         {
@@ -260,14 +276,37 @@ void Server::HandelNonBlocking(int fd)
 void Server::ExtractedMessages(int fd)
 {
     size_t pos;
-    while((pos = client_buffers[fd].find("\r\n")) != std::string::npos)
+    while ((pos = client_buffers[fd].find("\n")) != std::string::npos)
     {
-        std::string line;
-        line = client_buffers[fd].substr(0, pos);
-        client_buffers[fd].erase(0, pos + 2);
-        std::cout << line << std::endl;
-        std::vector<std::string> Mesg;
-        Mesg = parsing_handler(line);
+        std::string line = client_buffers[fd].substr(0, pos);
+        client_buffers[fd].erase(0, pos + 1);
+        if (!line.empty() && line[line.size() - 1] == '\r')
+            line.erase(line.size() - 1);
+
+        if (line.empty())
+            continue;
+
+        std::cout << "CMD: " << line << std::endl;
+        std::vector<std::string> Mesg = parsing_handler(line);
         command_handeler(fd, Mesg);
     }
+}
+// void Server::ExtractedMessages(int fd)
+// {
+//     size_t pos;
+//     while((pos = client_buffers[fd].find("\r\n")) != std::string::npos)
+//     {
+//         std::string line;
+//         line = client_buffers[fd].substr(0, pos);
+//         client_buffers[fd].erase(0, pos + 2);
+//         std::cout << line << std::endl;
+//         std::vector<std::string> Mesg;
+//         Mesg = parsing_handler(line);
+//         command_handeler(fd, Mesg);
+//     }
+// }
+
+Client& Server::GetClient(int fd)
+{
+    return clients_map[fd];
 }
