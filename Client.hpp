@@ -8,11 +8,14 @@
 class Client {
 
 private:
+    bool _Registered;
+    bool _passSent;
+
     int fd;
     std::string buffer;
     std::string nickname;
     std::string username;
-    bool authentication;
+    bool authenticated;
 
 	public:
         Client(int client_fd = -1);
@@ -27,6 +30,10 @@ private:
         void setUsername(const std::string &value);
         bool isAuthenticated(void) const;
         void setAuthenticated(bool value);
+        bool IsRegistered() const;
+        void SetRegistered(bool value);
+        void setPassSent(bool value);
+        bool isPassSent() const;
 };
 
 

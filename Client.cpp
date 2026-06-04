@@ -2,7 +2,7 @@
 #include "Client.hpp"
 
 Client::Client(int client_fd)
-	: fd(client_fd), buffer(), nickname(), username(), authentication(false)
+	: _Registered(false), _passSent(false), fd(client_fd), buffer(), nickname(), username(), authenticated(false)
 {
 }
 
@@ -53,10 +53,30 @@ void Client::setUsername(const std::string &value)
 
 bool Client::isAuthenticated(void) const
 {
-	return authentication;
+	return authenticated;
 }
 
 void Client::setAuthenticated(bool value)
 {
-	authentication = value;
+	authenticated = value;
+}
+
+bool Client::IsRegistered() const
+{
+	return _Registered;
+}
+
+void Client::SetRegistered(bool value)
+{
+	_Registered = value;
+}
+
+void Client::setPassSent(bool value)
+{
+	_passSent = value;
+}
+
+bool Client::isPassSent() const
+{
+	return _passSent;
 }

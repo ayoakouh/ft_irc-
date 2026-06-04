@@ -18,14 +18,14 @@ int main(int argc, char **argv)
         Server server(port, password);
 
         server.CreateServer();
-		if (s[0] == "JOIN")
-		{
+		// if (s[0] == "JOIN")
+		// {
 			
-		}
-		else if (s[0] == "INVITE")
-		{
+		// }
+		// else if (s[0] == "INVITE")
+		// {
 
-		}
+		// }
         std::cout << "Server is running..." << std::endl;
         while (true)
         {
