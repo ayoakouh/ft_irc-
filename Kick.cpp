@@ -42,21 +42,18 @@ void kick(unsigned int fd, std::vector<std::string> &s, Server &serv)
 				std::cout << "the user getting kicked out is not in the channel.\n";
 				return ;
 			}
-			//broadcast
 			if (it->second.check_op(target_fd))
-			{
 				it->second.pop_op(target_fd);
-			}
 			if (it->second.check_member(target_fd))
 			{
 				it->second.pop(target_fd);
-				if (!it->second.get_members())
+				if (it->second.get_members().empty())
 				{
-					serv.serv_channel.erase(it);
+					channels.erase(it);
 				}
 			}
+			return ;
 		}
 	}
 	std::cout << "channel does not exist.\n";
-	return ;
 }

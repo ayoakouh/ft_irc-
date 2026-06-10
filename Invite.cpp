@@ -9,11 +9,12 @@ void invite(unsigned int fd, std::vector<std::string> &s, Server &serv)
         std::cerr << "wrong size of parameters, only three are accepted.\n";
         return ;
     }
-	for (size_t i = 0; i < serv.clients.size(); i++)
+	std::map<int, Client> &clients_map = serv.get_clients_map();
+	for (std::map<int, Client>::iterator it = clients_map.begin(); it != clients_map.end(); it++)
 	{
-		if (serv.clients[i].getname() == s[1])
+		if (it->second.getNickname() == s[1])
 		{
-			target_fd = serv.clients[i].getfd();
+			target_fd = it->first;
 			break;
 		}
 	}
@@ -22,7 +23,8 @@ void invite(unsigned int fd, std::vector<std::string> &s, Server &serv)
 		std::cerr << "the target client fd not found.\n";
 		return ;
 	}
-	for (std::map<std::string, Channel>::iterator it = serv.serv_channel.begin(); it != serv.serv_channel.end(); it++)
+	std::map<std::string, Channel> &channels = serv.getChannels();
+	for (std::map<std::string, Channel>::iterator it = channels.begin(); it != channels.end(); it++)
 	{
 		if (it->first == s[2])
 		{
@@ -49,5 +51,4 @@ void invite(unsigned int fd, std::vector<std::string> &s, Server &serv)
 		}
 	}
 	std::cout << "this channel " << s[2] << " does not exist on the server.\n";
-
 }

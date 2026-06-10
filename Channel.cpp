@@ -1,7 +1,8 @@
 #include "Channel.hpp"
+#include <algorithm>
 
 Channel::Channel(std::string &channel_name)
-	:name(channel_name), invite_only(false), channel_size(-1)
+	:name(channel_name), invite_only(false), is_key(false), channel_size(-1)
 {
 	std::cout << "Channel parametrized constructor.\n";//must be removed after
 }
@@ -24,7 +25,11 @@ Channel &Channel::operator=(const Channel &obj)
 		this->op = obj.op;
 		this->invite_only = obj.invite_only;
 		this->inv_list = obj.inv_list;
+		this->is_key = obj.is_key;
+		this->key = obj.key;
+		this->channel_size = obj.channel_size;
 	}
+	return (*this);
 }
 void	Channel::add(int fd)
 {
@@ -76,16 +81,16 @@ void	Channel::add_invite(int fd)
 
 void	Channel::pop_invite(int fd)
 {
-	std::vector<int>::iterator it = std::find(invite_list.begin(), invite_list.end(), fd);
-	if (it != invite_list.end())
+	std::vector<int>::iterator it = std::find(inv_list.begin(), inv_list.end(), fd);
+	if (it != inv_list.end())
 	{
-		invite_list.erase(it);
+		inv_list.erase(it);
 	}
 }
 bool	Channel::check_invite(int fd)
 {
-	std::vector<int>::iterator it = std::find(invite_list.begin(), invite_list.end(), fd);
-	if (it != invite_list.end())
+	std::vector<int>::iterator it = std::find(inv_list.begin(), inv_list.end(), fd);
+	if (it != inv_list.end())
 	{
 		return (true);
 	}
@@ -103,6 +108,16 @@ const std::vector<int> &Channel::get_members(void)
 bool Channel::get_invite_only(void)
 {
 	return (invite_only);
+}
+
+bool Channel::check_key(void)
+{
+	return (is_key);
+}
+
+std::string &Channel::get_key(void)
+{
+	return (key);
 }
 
 int Channel::get_channel_size(void)

@@ -33,6 +33,7 @@ class Channel
 		const std::string &get_name(void);
 		const std::vector<int> &get_members(void);
 		bool get_invite_only(void);
+        int get_channel_size(void);
 		bool check_key(void);// anass you implement this
 		std::string &get_key(void); // and this
 
