@@ -4,16 +4,24 @@
 void kick(unsigned int fd, std::vector<std::string> &s, Server &serv)
 {
 	int target_fd = -1;
+	std::map<int, Client> &clients_map = serv.get_clients_map();
+
+    if (!clients_map[fd].isAuthenticated())
+    {
+        std::string err_authen = ":ft_irc 451 * :You have not registered\r\n";
+        send(fd, err_authen.c_str(), err_authen.size() , 0);
+        return;
+    }
 	if (s.size() != 2 && s.size() != 3)
 	{
 		std::cout << "wrong number of parameters.\n";
 		return ;
 	}
-	for (size_t i = 0; i < serv.clients.size(); i++)
+	for (std::map<int, Client>::iterator it = clients_map.begin(); it != clients_map.end(); it++)
 	{
-		if (serv.clients[i].getname() == s[1])
+		if (it->second.getNickname() == s[1])
 		{
-			target_fd = serv.clients[i].getfd();
+			target_fd = it->first;
 			break;
 		}
 	}
@@ -23,7 +31,8 @@ void kick(unsigned int fd, std::vector<std::string> &s, Server &serv)
 		return ;
 	}
 	//if no reason is provided use a default reason, maybe the name of the one getting kicked
-	for (std::map<std::string, Channel>::iterator it = serv.serv_channel.begin(); it != serv.serv_channel.end(); it++)
+	std::map<std::string, Channel> &channels = serv.getChannels();
+	for (std::map<std::string, Channel>::iterator it = channels.begin(); it != channels.end(); it++)
 	{
 		if (it->first == s[1])
 		{

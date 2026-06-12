@@ -4,12 +4,19 @@
 void invite(unsigned int fd, std::vector<std::string> &s, Server &serv)
 { 
 	int target_fd = -1;
+	std::map<int, Client> &clients_map = serv.get_clients_map();
+
+    if (!clients_map[fd].isAuthenticated())
+    {
+        std::string err_authen = ":ft_irc 451 * :You have not registered\r\n";
+        send(fd, err_authen.c_str(), err_authen.size() , 0);
+        return;
+    }
     if (s.size() != 3)
     {
         std::cerr << "wrong size of parameters, only three are accepted.\n";
         return ;
     }
-	std::map<int, Client> &clients_map = serv.get_clients_map();
 	for (std::map<int, Client>::iterator it = clients_map.begin(); it != clients_map.end(); it++)
 	{
 		if (it->second.getNickname() == s[1])
