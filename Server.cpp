@@ -72,6 +72,11 @@ const std::string& Server::GetPassword() const
     return _password;
 }
 
+std::map<int, Client> &Server::get_clients_map(void)
+{
+	return (clients_map);
+}
+
 std::vector<std::string> Server::parsing_handler(std::string buffer)
 {
     std::vector<std::string> Message;

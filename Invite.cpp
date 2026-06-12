@@ -1,17 +1,37 @@
+#include "Client.hpp"
 #include "Server.hpp"
 
 void invite(unsigned int fd, std::vector<std::string> &s, Server &serv)
 { 
 	int target_fd = -1;
+	std::map<int, Client> &clients_map = serv.get_clients_map();
+
+    if (!clients_map[fd].isAuthenticated())
+    {
+        std::string err_authen = ":ft_irc 451 * :You have not registered\r\n";
+        send(fd, err_authen.c_str(), err_authen.size() , 0);
+        return;
+    }
     if (s.size() != 3)
     {
         std::cerr << "wrong size of parameters, only three are accepted.\n";
         return ;
     }
-	//check if the nickname is connected to an fd on the server.
-	//if no client exist stop here and send error.
+	for (std::map<int, Client>::iterator it = clients_map.begin(); it != clients_map.end(); it++)
+	{
+		if (it->second.getNickname() == s[1])
+		{
+			target_fd = it->first;
+			break;
+		}
+	}
+	if (target_fd == -1)
+	{
+		std::cerr << "the target client fd not found.\n";
+		return ;
+	}
 	std::map<std::string, Channel> &channels = serv.getChannels();
-	for (std::map<std::string, Channel>::iterator it = channels.begin(); it != channels.end(); ++it)
+	for (std::map<std::string, Channel>::iterator it = channels.begin(); it != channels.end(); it++)
 	{
 		if (it->first == s[2])
 		{
@@ -35,9 +55,7 @@ void invite(unsigned int fd, std::vector<std::string> &s, Server &serv)
 			}
 			it->second.add_invite(target_fd);
 			//send messages to the target and the caller
-			return ;
 		}
 	}
 	std::cout << "this channel " << s[2] << " does not exist on the server.\n";
-
 }

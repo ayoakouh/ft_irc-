@@ -14,9 +14,9 @@ class Channel
 		std::vector<int> inv_list;
 		bool		is_key;
 		std::string key;
-		int			channel_size;
-        Channel(void);
+		size_t			channel_size;
     public:
+        Channel(void);
 		Channel(std::string &channel_name);
         ~Channel(void);
         Channel(const Channel &obj);
@@ -33,7 +33,7 @@ class Channel
 		const std::string &get_name(void);
 		const std::vector<int> &get_members(void);
 		bool get_invite_only(void);
-        int get_channel_size(void);
+        size_t get_channel_size(void);
 		bool check_key(void);// anass you implement this
 		std::string &get_key(void); // and this
 

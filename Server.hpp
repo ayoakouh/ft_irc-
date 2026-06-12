@@ -54,6 +54,7 @@ public:
     Client& GetClient(int fd);
     const std::string& GetPassword() const;
     bool NickIsExist(const std::string& nick);
+	std::map<int, Client> &get_clients_map(void);
 };
 //canonical form
 void user(int fd, std::vector<std::string> &s, Server& serv);
@@ -65,5 +66,6 @@ void kick(unsigned int fd, std::vector<std::string> &s, Server &serv);
 void pass(int fd, std::vector<std::string> &s, Server& serv);
 void nick(int fd, std::vector<std::string> &s, Server& serv);
 void TryRegister(Client& client);
+
 
 #endif
