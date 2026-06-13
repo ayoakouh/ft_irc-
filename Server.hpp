@@ -74,4 +74,5 @@ void privmsg(int fd, std::vector<std::string> &s, Server &serv);
 void mode(int fd, std::vector<std::string> &s, Server &serv);
 void topic(int fd, std::vector<std::string> &s, Server &serv);
 
+
 #endif
