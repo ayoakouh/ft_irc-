@@ -11,11 +11,6 @@ std::map<std::string, Channel>& Server::getChannels()
     return serv_channel;
 }
 
-
-std::map<int, Client> & Server::get_clients_map()
-{
-    return clients_map;
-}
 Server::~Server()
 {
     if(Server_fd >= 0)
@@ -134,13 +129,17 @@ void Server::command_handeler(int fd, std::vector<std::string> Message)
         user(fd, Message, *this);
     }
     else if (Message[0] == "MODE")
-    {}
+    {
+        mode(fd, Message, *this);
+    }
     else if (Message[0] == "PRIVMSG")
     { 
-        
+        privmsg(fd, Message, *this);
     }
     else if (Message[0] == "TOPIC")
-    {}
+    {
+        topic(fd, Message, *this);
+    }
     else if (Message[0] == "JOIN")
     {
         join(fd, Message, *this);

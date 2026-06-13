@@ -128,7 +128,7 @@ std::string &Channel::get_key(void)
 }
 
 
-int Channel::get_channel_size(void)
+size_t Channel::get_channel_size(void)
 {
 	return (channel_size);
 }
