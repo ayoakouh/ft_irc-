@@ -19,7 +19,7 @@ void kick(unsigned int fd, std::vector<std::string> &s, Server &serv)
 	}
 	for (std::map<int, Client>::iterator it = clients_map.begin(); it != clients_map.end(); it++)
 	{
-		if (it->second.getNickname() == s[1])
+		if (it->second.getNickname() == s[2])
 		{
 			target_fd = it->first;
 			break;
