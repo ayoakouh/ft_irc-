@@ -1,6 +1,11 @@
 #include "Channel.hpp"
 #include <algorithm>
 
+Channel::Channel(void)
+{
+	std::cout << "Default Constructor\n";
+}
+
 Channel::Channel(std::string &channel_name)
 	:name(channel_name), invite_only(false), is_key(false), channel_size(-1), topic(""), topic_restricted(false)
 {
@@ -121,6 +126,7 @@ std::string &Channel::get_key(void)
 {
 	return (key);
 }
+
 
 int Channel::get_channel_size(void)
 {

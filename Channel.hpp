@@ -22,7 +22,7 @@ class Channel
 		Channel(std::string &channel_name);
         ~Channel(void);
         Channel(const Channel &obj);
-        Channel &operator=(const Channel &obj);
+        Channel &operator=(const Channel &obj);check_key
         void	add(int fd);
         void	pop(int fd);
         bool	check_member(int fd);
