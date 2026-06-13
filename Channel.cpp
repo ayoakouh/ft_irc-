@@ -28,6 +28,8 @@ Channel &Channel::operator=(const Channel &obj)
 		this->is_key = obj.is_key;
 		this->key = obj.key;
 		this->channel_size = obj.channel_size;
+		this->topic = obj.topic;
+		this->topic_restricted = obj.topic_restricted;
 	}
 	return (*this);
 }
@@ -141,7 +143,7 @@ bool Channel::isTopicRestricted()
 	return topic_restricted;
 }
 
-void Channel::setTopicRestricted(bool status)
+void Channel::set_Topic_Restricted(bool status)
 {
 	topic_restricted = status;
 }
@@ -151,3 +153,21 @@ void Channel::set_invite_only(bool status_of_invite_only)
 {
 	invite_only = status_of_invite_only;
 }
+
+void Channel::set_key(const std::string &new_key)
+{
+	key = new_key;
+	is_key = true;
+}
+
+
+void Channel::remove_key()
+{
+	key = "";
+	is_key = false;
+}
+
+void Channel::set_channel_size(int new_size)
+{
+	channel_size = new_size;
+}  

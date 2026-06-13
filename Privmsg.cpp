@@ -7,7 +7,7 @@ void privmsg(int fd, std::vector<std::string> &s, Server &serv)
 {
     std::map<int, Client> &clients_map = serv.get_clients_map();
 
-    if (!clients_map[fd].isAuthenticated())
+    if (!clients_map[fd].IsRegistered())
     {
         std::string err_authen = ":ft_irc 451 * :You have not registered\r\n";
         send(fd, err_authen.c_str(), err_authen.size() , 0);
@@ -43,7 +43,7 @@ void privmsg(int fd, std::vector<std::string> &s, Server &serv)
             send(fd, err_channel_not_found.c_str(), err_channel_not_found.size() , 0);
             return;
         }
-        Channel &ch = serv_channel[ltarget];
+        Channel &ch = serv_channel.find(ltarget)->second;
 
         if (!ch.check_member(fd))
         {

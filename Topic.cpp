@@ -10,7 +10,7 @@ void topic(int fd, std::vector<std::string> &s, Server &serv)
 
 
 
-    if (!clients_map[fd].isAuthenticated())
+    if (!clients_map[fd].IsRegistered())
     {
         std::string err_authen = ":ft_irc 451 * :You have not registered\r\n";
         send(fd, err_authen.c_str(), err_authen.size() , 0);
@@ -36,7 +36,7 @@ void topic(int fd, std::vector<std::string> &s, Server &serv)
         send(fd, err_channel_not_found.c_str(), err_channel_not_found.size() , 0);
         return;
     }
-    Channel &ch = serv_channel[ltarget];
+    Channel &ch = serv_channel.find(ltarget)->second;
     if (!ch.check_member(fd))
     {
         std::string err_not_a_member = ":ft_irc 442 " + clients_map[fd].getNickname() + " " + s[1] + " :Not in channel\r\n";

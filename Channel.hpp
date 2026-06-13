@@ -26,8 +26,8 @@ class Channel
         void	add(int fd);
         void	pop(int fd);
         bool	check_member(int fd);
-        void	become_op(int fd);
-        void	pop_op(int fd);
+        void	become_op(int fd); // +o
+        void	pop_op(int fd); // -o
         bool	check_op(int fd);
 		void	add_invite(int fd);
 		void	pop_invite(int fd);
@@ -39,18 +39,17 @@ class Channel
         std::string getTopic(); // TOPIC
         void setTopic(const std::string &new_topic); // TOPIC
         bool isTopicRestricted(); // TOPIC
-        void setTopicRestricted(bool status); // TOPIC
+        void set_Topic_Restricted(bool status); // TOPIC
 		bool check_key(void);// anass you implement this
 		std::string &get_key(void); // and this
         void set_invite_only(bool status_of_invite_only);
+        void set_key(const std::string &new_key);
+        void remove_key();
+
+        void set_channel_size(int new_size); // l-/l+
+
 
 };
-
-
-
-
-
-
 
 
 #endif

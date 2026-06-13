@@ -70,4 +70,8 @@ void pass(int fd, std::vector<std::string> &s, Server& serv);
 void nick(int fd, std::vector<std::string> &s, Server& serv);
 void TryRegister(Client& client);
 
+void privmsg(int fd, std::vector<std::string> &s, Server &serv);
+void mode(int fd, std::vector<std::string> &s, Server &serv);
+void topic(int fd, std::vector<std::string> &s, Server &serv);
+
 #endif
