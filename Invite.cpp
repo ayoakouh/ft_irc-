@@ -12,7 +12,7 @@ void invite(unsigned int fd, std::vector<std::string> &s, Server &serv)
         send(fd, err_authen.c_str(), err_authen.size() , 0);
         return;
     }
-    if (s.size() != 3)
+    if (s.size() != 3) //did the user provide both the nickname and channel name
     {
         std::cerr << "wrong size of parameters, only three are accepted.\n";
         return ;
@@ -33,28 +33,29 @@ void invite(unsigned int fd, std::vector<std::string> &s, Server &serv)
 	std::map<std::string, Channel> &channels = serv.getChannels();
 	for (std::map<std::string, Channel>::iterator it = channels.begin(); it != channels.end(); it++)
 	{
-		if (it->first == s[2])
+		if (it->first == s[2]) // does the channel exist?
 		{
-			if (!it->second.check_member(fd))
+			if (!it->second.check_member(fd)) //is the user inviting in the channel?
 			{
 				std::cout << "the user inviting not in channel.\n";
 				return ;
 			}
-			if (it->second.get_invite_only())
+			if (it->second.get_invite_only()) // is the channel an invite only?
 			{
-				if (!it->second.check_op(fd))
+				if (!it->second.check_op(fd)) // is the inviter an operator?
 				{
 					std::cout << "The user inviting you is not an operator.\n";
 					return ;
 				}
 			}
-			if (it->second.check_member(target_fd))
+			if (it->second.check_member(target_fd)) // is the target user already in the channel?
 			{
 				std::cout << "the user already exists in the channel.\n";
 				return ;
 			}
 			it->second.add_invite(target_fd);
 			//send messages to the target and the caller
+			return ;
 		}
 	}
 	std::cout << "this channel " << s[2] << " does not exist on the server.\n";
