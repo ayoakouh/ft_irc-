@@ -19,7 +19,7 @@ void topic(int fd, std::vector<std::string> &s, Server &serv)
 
     if (s.size() < 2)
     {
-        std::string err_size = ":ft_irc 461 " + clients_map[fd].getNickname() + " TOPIC :No enough parameters\r\n";
+        std::string err_size = ":ft_irc 461 " + clients_map[fd].getNickname() + " TOPIC :Not enough parameters\r\n";
         send(fd, err_size.c_str(), err_size.size() , 0);
         return;
     }

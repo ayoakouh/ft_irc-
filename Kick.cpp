@@ -19,14 +19,17 @@ void kick(unsigned int fd, std::vector<std::string> &s, Server &serv)
 	}
 	for (std::map<int, Client>::iterator it = clients_map.begin(); it != clients_map.end(); it++)
 	{
-		if (it->second.getNickname() == s[1])
+		if (it->second.getNickname() == s[2])
 		{
+			std::cout << "s[1] = " << s[1] << std::endl;
+			std::cout << "it->first = " << it->first << std::endl;
 			target_fd = it->first;
 			break;
 		}
 	}
 	if (target_fd == -1)
-	{
+	{	
+		std::cout << "s[1] = " << s[1] << std::endl;
 		std::cerr << "the target client fd not found.\n";
 		return ;
 	}
@@ -36,6 +39,8 @@ void kick(unsigned int fd, std::vector<std::string> &s, Server &serv)
 	{
 		if (it->first == s[1])
 		{
+			std::cout << "s[1] = " << s[1] << std::endl;
+			std::cout << "it->first = " << it->first << std::endl;
 			if (!it->second.check_member(fd) || !it->second.check_member(target_fd))
 			{
 				std::cout << "the caller is not in the channel.\n";

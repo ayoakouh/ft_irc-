@@ -107,7 +107,11 @@ std::vector<std::string> Server::parsing_handler(std::string buffer)
 
 
     if (has_trailing)
+    {
+        while (!right.empty() && (right[right.size()-1] == '\r' || right[right.size()-1] == '\n'))
+            right.erase(right.size() - 1);
         Message.push_back(right);
+    }
 
     return Message;
 }
