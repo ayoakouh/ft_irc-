@@ -20,7 +20,7 @@ void kick(unsigned int fd, std::vector<std::string> &s, Server &serv)
 	std::vector<int> targets;
 	std::map<int, Client> &clients_map = serv.get_clients_map();
 
-    if (!clients_map[fd].isAuthenticated())
+    if (!clients_map[fd].IsRegistered())
     {
         std::string err_authen = ":ft_irc 451 * :You have not registered\r\n";
         send(fd, err_authen.c_str(), err_authen.size() , 0);

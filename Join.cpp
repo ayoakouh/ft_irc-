@@ -73,7 +73,7 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
         std::cerr << "error number of parameters\n";
         return ;
     }
-    if (!clients_map[fd].isAuthenticated()) // is the client authenticated in the server ?
+    if (!clients_map[fd].IsRegistered()) // is the client authenticated in the server ?
     {
         std::string err_authen = ":ft_irc 451 * :You have not registered\r\n";
         send(fd, err_authen.c_str(), err_authen.size() , 0);
