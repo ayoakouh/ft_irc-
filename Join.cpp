@@ -41,7 +41,6 @@ void	parsing(std::vector<std::string> &s, std::vector<std::string> &channels_nam
 			}
 		}
 	}
-
 }
 
 int	check_channel(std::string &s)
@@ -67,6 +66,7 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 	std::map<int, Client> &clients_map = serv.get_clients_map();
 	std::vector<std::string> channels_name;
 	std::vector<std::string> channels_key;
+	int	check = 0;
 
     if (s.size() < 2) // did user provide a channel?
     {
@@ -85,10 +85,15 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 		return ;
 	}
 	parsing(s,channels_name, channels_key);
+	//printing the vector
+	for (size_t i = 0; i < channels_name.size();i++)
+	{
+		std::cout << "hello " << channels_name[i] <<"\n";
+	}
 	std::map<std::string, Channel> &channels = serv.getChannels();
 	for (size_t i = 0; i < channels_name.size(); i++) //code in here
 	{
-		if (channels_name.size() <= 1 || channels_name.size() > 200) // is the channel name valid?
+		if (channels_name[i].size() <= 1 || channels_name[i].size() > 200) // is the channel name valid?
 		{
 			std::cerr << "Invalid channel size.\n";
 			// return ;
@@ -101,8 +106,9 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 		}
 		for (std::map<std::string, Channel>::iterator it = channels.begin(); it != channels.end(); it++)
 		{
-			if (it->first == s[1])
+			if (it->first == channels_name[i])
 			{
+				check = 1;
 				if (it->second.check_member(fd)) // user already in channel?
 				{
 					std::cout << "User already in channel.\n";
@@ -127,7 +133,7 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 						break ;
 					}
 				}
-				else if (it->second.check_key()) // does the channel have a key?
+				if (it->second.check_key()) // does the channel have a key?
 				{
 					if (s.size() < 3 || it->second.get_key() != s[2]) // is the password correct?
 					{
@@ -139,12 +145,21 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 				break ;
 			}
 		}
+		if (!check)
+		{
+			std::cerr << "heyhey.\n";
+			channels[channels_name[i]] = Channel(channels_name[i]);
+			channels[channels_name[i]].add(fd);
+			channels[channels_name[i]].become_op(fd);
+			if (i < channels_key.size())
+			{
+				channels[channels_name[i]].set_key();
+			}
+			std::cout << "new channel created with name " << channels_name[i] << "\n";
+		}
+		check = 0;
 
 	}
-	channels[s[1]] = Channel(s[1]);
-	channels[s[1]].add(fd);
-	channels[s[1]].become_op(fd);
-	std::cout << "new channel created with name " << s[1] << "\n";
 	return ;
 
 }

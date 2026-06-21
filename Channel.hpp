@@ -37,6 +37,7 @@ class Channel
         size_t get_channel_size(void);
 		bool check_key(void);// anass you implement this
 		std::string &get_key(void); // and this
+        void set_key(void);
 
 };
 
