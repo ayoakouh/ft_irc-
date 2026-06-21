@@ -4,7 +4,7 @@
 
 void fill_users(std::vector<std::string> &users, std::string &s)
 {
-	std::stringstream ss;
+	std::stringstream ss(s);
 	std::string word;
 	while (std::getline(ss, word, ','))
 	{
@@ -18,7 +18,7 @@ void kick(unsigned int fd, std::vector<std::string> &s, Server &serv)
 	int target_fd = -1;
 	std::vector<std::string> users;
 	std::vector<int> targets;
-	std::map<int, Client> &clients_map = serv.get_clients_map();
+	std::map<int, Client> &clients_map = serv.get_clients_map(); // fill the fds of users
 
     if (!clients_map[fd].IsRegistered())
     {
@@ -32,7 +32,6 @@ void kick(unsigned int fd, std::vector<std::string> &s, Server &serv)
 		return ;
 	}
 	fill_users(users, s[2]);
-	std::map<int, Client> &clients_map = serv.get_clients_map(); // fill the fds of users
 	for (size_t i = 0; i < users.size(); i++)
 	{
 		for (std::map<int, Client>::iterator it = clients_map.begin(); it != clients_map.end(); it++)
