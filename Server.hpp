@@ -22,6 +22,9 @@
 #include "Channel.hpp"
 #include "Client.hpp"
 
+#include "Channel.hpp"
+#include "Client.hpp"
+
 
 #define MAX_EVENTS 64
 class Server {
@@ -51,10 +54,10 @@ public:
     void RemoveClient(int fd);
     void HandelNonBlocking(int fd);
     void ExtractedMessages(int fd);
+    std::map<int, Client> &get_clients_map();
     Client& GetClient(int fd);
     const std::string& GetPassword() const;
     bool NickIsExist(const std::string& nick);
-	std::map<int, Client> &get_clients_map(void);
 };
 //canonical form
 void user(int fd, std::vector<std::string> &s, Server& serv);
@@ -66,6 +69,10 @@ void kick(unsigned int fd, std::vector<std::string> &s, Server &serv);
 void pass(int fd, std::vector<std::string> &s, Server& serv);
 void nick(int fd, std::vector<std::string> &s, Server& serv);
 void TryRegister(Client& client);
+
+void privmsg(int fd, std::vector<std::string> &s, Server &serv);
+void mode(int fd, std::vector<std::string> &s, Server &serv);
+void topic(int fd, std::vector<std::string> &s, Server &serv);
 
 
 #endif
