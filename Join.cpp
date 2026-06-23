@@ -12,7 +12,6 @@ void	handle_case_zero(unsigned int fd, Server &serv)
 			it->second.pop(fd);	
 		}
 	}
-
 }
 
 void	parsing(std::vector<std::string> &s, std::vector<std::string> &channels_name, std::vector<std::string> &channels_key)
@@ -135,7 +134,7 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 				}
 				if (it->second.check_key()) // does the channel have a key?
 				{
-					if (s.size() < 3 || it->second.get_key() != s[2]) // is the password correct?
+					if (s.size() < 3 || i >= channels_key.size() || it->second.get_key() != channels_key[i]) // is the password correct?
 					{
 						std::cout << "wrong password.\n";
 						break ;
@@ -153,7 +152,7 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 			channels[channels_name[i]].become_op(fd);
 			if (i < channels_key.size())
 			{
-				channels[channels_name[i]].set_key();
+				channels[channels_name[i]].set_key(channels_key[i]);
 			}
 			std::cout << "new channel created with name " << channels_name[i] << "\n";
 		}

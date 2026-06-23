@@ -176,4 +176,9 @@ void Channel::remove_key()
 void Channel::set_channel_size(int new_size)
 {
 	channel_size = new_size;
-}  
+}
+
+void Channel::set_bool_key()
+{
+	is_key = true;
+}
