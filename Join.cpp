@@ -27,6 +27,8 @@ void	parsing(std::vector<std::string> &s, std::vector<std::string> &channels_nam
 			{
 				while (std::getline(ss, word, ','))
 				{
+					for (size_t i = 0; i < word.size();i++)
+						word[i] = std::tolower(word[i]);
 					channels_name.push_back(word);
 				}
 				ss.clear();
@@ -51,7 +53,7 @@ int	check_channel(std::string &s)
 			std::cerr << "Channel name does not start with #\n";
 			return (1);
 		}
-        if (std::isspace(s[i]) || s[i] == ',' || s[i] == 7)
+        if (std::isspace(s[i]) || s[i] == ',' || s[i] == 7) //must revise before push
 		{
 			std::cerr << "Not valid\n";
 			return (1);
@@ -146,7 +148,7 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 		}
 		if (!check)
 		{
-			std::cerr << "heyhey.\n";
+			std::cerr << "heyhey. " << channels_name[i] << "\n";
 			channels[channels_name[i]] = Channel(channels_name[i]);
 			channels[channels_name[i]].add(fd);
 			channels[channels_name[i]].become_op(fd);
