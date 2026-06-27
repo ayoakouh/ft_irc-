@@ -5,16 +5,19 @@ void invite(unsigned int fd, std::vector<std::string> &s, Server &serv)
 { 
 	int target_fd = -1;
 	std::map<int, Client> &clients_map = serv.get_clients_map();
+	std::string err;
+	std::string nick = clients_map[fd].getNickname();
 
     if (!clients_map[fd].IsRegistered())
     {
-        std::string err_authen = ":ft_irc 451 * :You have not registered\r\n";
-        send(fd, err_authen.c_str(), err_authen.size() , 0);
+        err = ":ft_irc 451 * :You have not registered\r\n";
+        send(fd, err.c_str(), err.size() , 0);
         return;
     }
     if (s.size() != 3) //did the user provide both the nickname and channel name
     {
-        std::cerr << "wrong size of parameters, only three are accepted.\n";
+		err = ":ft_irc 461 " + nick + " INVITE :Not enough parameters\r\n";
+        send(fd, err.c_str(), err.size() , 0);
         return ;
     }
 	for (std::map<int, Client>::iterator it = clients_map.begin(); it != clients_map.end(); it++)
@@ -27,7 +30,8 @@ void invite(unsigned int fd, std::vector<std::string> &s, Server &serv)
 	}
 	if (target_fd == -1)
 	{
-		std::cerr << "the target client fd not found.\n";
+		err = ":ft_irc 401 " + nick + " " + s[1] + " :No such nick/channel\r\n";
+        send(fd, err.c_str(), err.size() , 0);
 		return ;
 	}
 	std::map<std::string, Channel> &channels = serv.getChannels();
@@ -37,26 +41,36 @@ void invite(unsigned int fd, std::vector<std::string> &s, Server &serv)
 		{
 			if (!it->second.check_member(fd)) //is the user inviting in the channel?
 			{
-				std::cout << "the user inviting not in channel.\n";
+				err = ":ft_irc 442 " + nick + " " + (it->second).get_name() + " :You're not on that channel\r\n";
+        		send(fd, err.c_str(), err.size() , 0);
 				return ;
 			}
 			if (it->second.get_invite_only()) // is the channel an invite only?
 			{
 				if (!it->second.check_op(fd)) // is the inviter an operator?
 				{
-					std::cout << "The user inviting you is not an operator.\n";
+					err = ":ft_irc 482 " + nick + " " + (it->second).get_name() + " :You're not channel operator\r\n";
+        			send(fd, err.c_str(), err.size() , 0);
 					return ;
 				}
 			}
 			if (it->second.check_member(target_fd)) // is the target user already in the channel?
 			{
-				std::cout << "the user already exists in the channel.\n";
+				err = ":ft_irc 443 " + nick + " " + s[2] + " " + (it->second).get_name() + " :is already on channel\r\n";
+        		send(fd, err.c_str(), err.size() , 0);
 				return ;
 			}
 			it->second.add_invite(target_fd);
+			err = ":ft_irc 341 " + nick + " " + s[2] + " " + (it->second).get_name() + "\r\n";
+        	send(fd, err.c_str(), err.size() , 0);
+			err = ":" + nick + "!" + user + "@" + host + " INVITE " + target + " :" + channel + "\r\n";
+			send(target_fd, err.c_str(), err.size() , 0);
+
 			//send messages to the target and the caller
 			return ;
 		}
 	}
-	std::cout << "this channel " << s[2] << " does not exist on the server.\n";
+	err = ":ft_irc 403 " + nick + " " + s[2] + " :No such channel\r\n" ;
+    send(fd, err.c_str(), err.size() , 0);
+	return ;
 }

@@ -67,18 +67,24 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 	std::map<int, Client> &clients_map = serv.get_clients_map();
 	std::vector<std::string> channels_name;
 	std::vector<std::string> channels_key;
+	std::string err;
+	std::string nick;
+	std::string user;
 	int	check = 0;
+	nick = clients_map[fd].getNickname();
+	user = clients_map[fd].getUsername();
 
-    if (s.size() < 2) // did user provide a channel?
-    {
-        std::cerr << "error number of parameters\n";
-        return ;
-    }
     if (!clients_map[fd].IsRegistered()) // is the client authenticated in the server ?
     {
-        std::string err_authen = ":ft_irc 451 * :You have not registered\r\n";
-        send(fd, err_authen.c_str(), err_authen.size() , 0);
+        err = ":ft_irc 451 * :You have not registered\r\n";
+        send(fd, err.c_str(), err.size() , 0);
         return;
+    }
+    if (s.size() < 2) // did user provide a channel?
+    {
+		err = ":ft_irc 461 " + nick + " JOIN :Not enough parameters\r\n";
+        send(fd, err.c_str(), err.size() , 0);
+        return ;
     }
 	if (s[1] == "0")
 	{
@@ -86,11 +92,11 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 		return ;
 	}
 	parsing(s,channels_name, channels_key);
-	//printing the vector
-	for (size_t i = 0; i < channels_name.size();i++)
-	{
-		std::cout << "hello " << channels_name[i] <<"\n";
-	}
+	// //printing the vector
+	// for (size_t i = 0; i < channels_name.size();i++)
+	// {
+	// 	std::cout << "hello " << channels_name[i] <<"\n";
+	// }
 	std::map<std::string, Channel> &channels = serv.getChannels();
 	for (size_t i = 0; i < channels_name.size(); i++) //code in here
 	{
@@ -102,7 +108,8 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 		}
 		if (check_channel(channels_name[i]))
 		{
-			std::cerr << "Not valid name.\n";
+			err = ":ft_irc 476 " + nick + " " + channels_name[i] + " :Bad Channel Mask\r\n";
+			send(fd, err.c_str(), err.size() , 0);
 			continue ;
 		}
 		for (std::map<std::string, Channel>::iterator it = channels.begin(); it != channels.end(); it++)
@@ -117,7 +124,8 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 				}
 				if (it->second.get_members().size() >= it->second.get_channel_size()) // is the channel already full?
 				{
-					std::cout << "channel is full.\n";
+					err = ":ft_irc 471 " + nick + " " + it->first + " :Cannot join channel (+l)\r\n";
+					send(fd, err.c_str(), err.size() , 0);
 					break ;
 				}
 				if (it->second.get_invite_only()) // is the channel invite only?
@@ -130,7 +138,8 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 					}
 					else
 					{
-						std::cout << "not invited\n";
+						err = ":ft_irc 473 " + nick + " " + it->first + " :Cannot join channel (+i)\r\n";
+						send(fd, err.c_str(), err.size() , 0);
 						break ;
 					}
 				}
@@ -138,17 +147,22 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 				{
 					if (s.size() < 3 || i >= channels_key.size() || it->second.get_key() != channels_key[i]) // is the password correct?
 					{
-						std::cout << "wrong password.\n";
+						err = ":ft_irc 475 " + nick + " " + it->first + " :Cannot join channel (+k)\r\n";
+						send(fd, err.c_str(), err.size() , 0);
 						break ;
 					}
 				}
 				it->second.add(fd);
+				if (!it->second.getTopic().empty())
+				{
+					err =":ft_irc 332 " + nick + " " + it->first + " :" + it->second.getTopic() + "\r\n";
+					send(fd, err.c_str(), err.size() , 0);
+				}
 				break ;
 			}
 		}
 		if (!check)
 		{
-			std::cerr << "heyhey. " << channels_name[i] << "\n";
 			channels[channels_name[i]] = Channel(channels_name[i]);
 			channels[channels_name[i]].add(fd);
 			channels[channels_name[i]].become_op(fd);
@@ -156,7 +170,8 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 			{
 				channels[channels_name[i]].set_key(channels_key[i]);
 			}
-			std::cout << "new channel created with name " << channels_name[i] << "\n";
+			// err = ":" + nick + "!" + user + "@" + host + " JOIN " + channels_name[i] + "\r\n";
+			// send(fd, err.c_str(), err.size() , 0);
 		}
 		check = 0;
 
