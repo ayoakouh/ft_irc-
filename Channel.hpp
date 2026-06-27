@@ -14,7 +14,9 @@ class Channel
 		std::vector<int> inv_list;
 		bool		is_key;
 		std::string key;
-		size_t			channel_size;
+		size_t		channel_size;
+        std::string topic; // TOPIC
+        bool topic_restricted; // TOPIC
     public:
         Channel(void);
 		Channel(std::string &channel_name);
@@ -24,8 +26,8 @@ class Channel
         void	add(int fd);
         void	pop(int fd);
         bool	check_member(int fd);
-        void	become_op(int fd);
-        void	pop_op(int fd);
+        void	become_op(int fd); // +o
+        void	pop_op(int fd); // -o
         bool	check_op(int fd);
 		void	add_invite(int fd);
 		void	pop_invite(int fd);
@@ -34,16 +36,20 @@ class Channel
 		const std::vector<int> &get_members(void);
 		bool get_invite_only(void);
         size_t get_channel_size(void);
+        std::string getTopic(); // TOPIC
+        void setTopic(const std::string &new_topic); // TOPIC
+        bool isTopicRestricted(); // TOPIC
+        void set_Topic_Restricted(bool status); // TOPIC
 		bool check_key(void);// anass you implement this
 		std::string &get_key(void); // and this
+        void set_invite_only(bool status_of_invite_only);
+        void set_key(const std::string &new_key);
+        void remove_key();
+
+        void set_channel_size(int new_size); // l-/l+
+
 
 };
-
-
-
-
-
-
 
 
 #endif

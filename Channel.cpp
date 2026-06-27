@@ -7,7 +7,7 @@ Channel::Channel(void)
 }
 
 Channel::Channel(std::string &channel_name)
-	:name(channel_name), invite_only(false), is_key(false), channel_size(-1)
+	:name(channel_name), invite_only(false), is_key(false), channel_size(-1), topic(""), topic_restricted(false)
 {
 	std::cout << "Channel parametrized constructor.\n";//must be removed after
 }
@@ -33,6 +33,8 @@ Channel &Channel::operator=(const Channel &obj)
 		this->is_key = obj.is_key;
 		this->key = obj.key;
 		this->channel_size = obj.channel_size;
+		this->topic = obj.topic;
+		this->topic_restricted = obj.topic_restricted;
 	}
 	return (*this);
 }
@@ -125,7 +127,53 @@ std::string &Channel::get_key(void)
 	return (key);
 }
 
+
 size_t Channel::get_channel_size(void)
 {
 	return (channel_size);
 }
+
+
+std::string Channel::getTopic()
+{
+	return topic;
+}
+
+void Channel::setTopic(const std::string &new_topic)
+{
+	topic = new_topic;
+}
+
+bool Channel::isTopicRestricted()
+{
+	return topic_restricted;
+}
+
+void Channel::set_Topic_Restricted(bool status)
+{
+	topic_restricted = status;
+}
+
+
+void Channel::set_invite_only(bool status_of_invite_only)
+{
+	invite_only = status_of_invite_only;
+}
+
+void Channel::set_key(const std::string &new_key)
+{
+	key = new_key;
+	is_key = true;
+}
+
+
+void Channel::remove_key()
+{
+	key = "";
+	is_key = false;
+}
+
+void Channel::set_channel_size(int new_size)
+{
+	channel_size = new_size;
+}  

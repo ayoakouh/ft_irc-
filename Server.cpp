@@ -47,15 +47,15 @@ void Server::BindSocket()
     struct sockaddr_in ServAddress;
 
     std::memset(&ServAddress, 0, sizeof(ServAddress));
-    ServAddress.sin_family = AF_INET;
-    ServAddress.sin_addr.s_addr = INADDR_ANY;
-    ServAddress.sin_port = htons(port);
+    ServAddress.sin_family = AF_INET;   // ip4; 
+    ServAddress.sin_addr.s_addr = INADDR_ANY;   // 0.0.0.0 accepte all concetion wich mean all ip in all networks ;
+    ServAddress.sin_port = htons(port);    //this htons for order "little endian  || big -endian"
     if(bind(Server_fd, (sockaddr*)&ServAddress, sizeof(ServAddress)) < 0)
     {
         close(Server_fd);
         throw std::runtime_error("bind failed: ");
     }
-    std::cout <<"bind is succefuly\n";
+    std::cout <<"bind is successfuly\n";
 }
 
 void Server::StartListen()
@@ -107,7 +107,11 @@ std::vector<std::string> Server::parsing_handler(std::string buffer)
 
 
     if (has_trailing)
+    {
+        while (!right.empty() && (right[right.size()-1] == '\r' || right[right.size()-1] == '\n'))
+            right.erase(right.size() - 1);
         Message.push_back(right);
+    }
 
     return Message;
 }
@@ -129,11 +133,17 @@ void Server::command_handeler(int fd, std::vector<std::string> Message)
         user(fd, Message, *this);
     }
     else if (Message[0] == "MODE")
-    {}
+    {
+        mode(fd, Message, *this);
+    }
     else if (Message[0] == "PRIVMSG")
-    {}
+    { 
+        privmsg(fd, Message, *this);
+    }
     else if (Message[0] == "TOPIC")
-    {}
+    {
+        topic(fd, Message, *this);
+    }
     else if (Message[0] == "JOIN")
     {
         join(fd, Message, *this);
@@ -156,7 +166,7 @@ void Server::command_handeler(int fd, std::vector<std::string> Message)
 void Server::HandelClient(int fd)
 {
     char buffer[1024];
-    std::vector<std::string> Message;
+    // std::vector<std::string> Message;
     memset(buffer, 0, sizeof(buffer));
     while(1)
     {
@@ -264,10 +274,7 @@ void Server::run()
 
 void Server::HandelNonBlocking(int fd)
 {
-    int flag = fcntl(fd, F_GETFL, 0);
-    if(flag < 0)
-        throw std::runtime_error("Fcntl FGETFL failes !");
-    if (fcntl(fd, F_SETFL, flag | O_NONBLOCK) < 0)
+    if (fcntl(fd, F_SETFL, O_NONBLOCK) < 0)
         throw std::runtime_error("Fcntl F_SETFL failes !");
 }
 
@@ -280,7 +287,6 @@ void Server::ExtractedMessages(int fd)
         client_buffers[fd].erase(0, pos + 1);
         if (!line.empty() && line[line.size() - 1] == '\r')
             line.erase(line.size() - 1);
-
         if (line.empty())
             continue;
 
@@ -288,6 +294,11 @@ void Server::ExtractedMessages(int fd)
         std::vector<std::string> Mesg = parsing_handler(line);
         command_handeler(fd, Mesg);
     }
+}
+
+Client& Server::GetClient(int fd)
+{
+    return clients_map[fd];
 }
 // void Server::ExtractedMessages(int fd)
 // {
@@ -303,8 +314,3 @@ void Server::ExtractedMessages(int fd)
 //         command_handeler(fd, Mesg);
 //     }
 // }
-
-Client& Server::GetClient(int fd)
-{
-    return clients_map[fd];
-}

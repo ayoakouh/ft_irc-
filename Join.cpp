@@ -77,6 +77,7 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 		}
 	}
 	channels[s[1]] = Channel(s[1]);
+	//channels.insert(std::make_pair(s[1], Channel(s[1])));
 	channels[s[1]].add(fd);
 	channels[s[1]].become_op(fd);
 	std::cout << "new channel created with name " << s[1] << "\n";
