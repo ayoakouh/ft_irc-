@@ -19,16 +19,19 @@ void kick(unsigned int fd, std::vector<std::string> &s, Server &serv)
 	std::vector<std::string> users;
 	std::vector<int> targets;
 	std::map<int, Client> &clients_map = serv.get_clients_map(); // fill the fds of users
+	std::string err;
+	std::string nick = clients_map[fd].getNickname();
 
     if (!clients_map[fd].IsRegistered())
     {
-        std::string err_authen = ":ft_irc 451 * :You have not registered\r\n";
-        send(fd, err_authen.c_str(), err_authen.size() , 0);
+        err = ":ft_irc 451 * :You have not registered\r\n";
+        send(fd, err.c_str(), err.size() , 0);
         return;
     }
 	if (s.size() != 2 && s.size() != 3) // number of params are correct
 	{
-		std::cout << "wrong number of parameters.\n";
+        err = ":ft_irc 461 " + nick + " KICK :Not enough parameters\r\n";
+        send(fd, err.c_str(), err.size() , 0);
 		return ;
 	}
 	fill_users(users, s[2]);
@@ -57,12 +60,14 @@ void kick(unsigned int fd, std::vector<std::string> &s, Server &serv)
 		{
 			if (!it->second.check_op(fd)) // is the caller an operator of the channel
 			{
-				std::cout << "the caller is not an operator in the channel.\n";
+				err = ":ft_irc 482 " + nick + " " + it->first + " :You're not channel operator\r\n";
+				send(fd, err.c_str(), err.size() , 0);
 				return ;
 			}
 			if (!it->second.check_member(fd))
 			{
-				std::cout << "the caller is not in the channel.\n";
+				err = ":ft_irc 442 " + nick + " " + it->first + " :You're not on that channel\r\n";
+				send(fd, err.c_str(), err.size() , 0);
 				return ;
 			}
 			for (size_t i = 0; i < targets.size(); i++)
@@ -84,10 +89,19 @@ void kick(unsigned int fd, std::vector<std::string> &s, Server &serv)
 							channels.erase(it);
 						}
 					}
+					else
+					{
+						err = ":ft_irc 441 " + nick + " " + s[2] + " " + it->first + " :They aren't on that channel\r\n";
+						send(fd, err.c_str(), err.size() , 0);
+					}
 				}
 			}
 			return ;
 		}
 	}
-	std::cout << "channel does not exist.\n";
+	//":" + nick + "!" + user + "@" + host + " KICK " + channel + " " + target + " :" + reason + "\r\n" this is it
+
+    err = ":ft_irc 403 " + nick + " " + s[1] + " :No such channel\r\n";
+    send(fd, err.c_str(), err.size() , 0);
+	return ;
 }
