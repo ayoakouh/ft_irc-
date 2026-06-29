@@ -21,6 +21,8 @@ void kick(unsigned int fd, std::vector<std::string> &s, Server &serv)
 	std::map<int, Client> &clients_map = serv.get_clients_map(); // fill the fds of users
 	std::string err;
 	std::string nick = clients_map[fd].getNickname();
+	std::string user = clients_map[fd].getUsername();
+	std::string host = clients_map[fd].get_host();
 
     if (!clients_map[fd].IsRegistered())
     {
@@ -48,7 +50,8 @@ void kick(unsigned int fd, std::vector<std::string> &s, Server &serv)
 		targets.push_back(target_fd);
 		if (target_fd == -1)
 		{
-			std::cerr << "the target client fd not found.\n";
+			err = ":ft_irc 401 " + nick + " " + s[2] + " :No such nick/channel\r\n";
+			send(fd, err.c_str(), err.size() , 0);
 		}
 		target_fd = -1;
 	}
@@ -58,15 +61,15 @@ void kick(unsigned int fd, std::vector<std::string> &s, Server &serv)
 	{
 		if (it->first == s[1]) // does the channel exist
 		{
-			if (!it->second.check_op(fd)) // is the caller an operator of the channel
-			{
-				err = ":ft_irc 482 " + nick + " " + it->first + " :You're not channel operator\r\n";
-				send(fd, err.c_str(), err.size() , 0);
-				return ;
-			}
 			if (!it->second.check_member(fd))
 			{
 				err = ":ft_irc 442 " + nick + " " + it->first + " :You're not on that channel\r\n";
+				send(fd, err.c_str(), err.size() , 0);
+				return ;
+			}
+			if (!it->second.check_op(fd)) // is the caller an operator of the channel
+			{
+				err = ":ft_irc 482 " + nick + " " + it->first + " :You're not channel operator\r\n";
 				send(fd, err.c_str(), err.size() , 0);
 				return ;
 			}
@@ -76,7 +79,8 @@ void kick(unsigned int fd, std::vector<std::string> &s, Server &serv)
 				{
 					if (!it->second.check_member(targets[i]))
 					{
-						std::cout << "the user getting kicked out is not in the channel.\n";
+						err = ":ft_irc 441 " + nick + " " + s[2] + " " + it->first + " :They aren't on that channel\r\n";
+						send(fd, err.c_str(), err.size() , 0);
 						continue ;
 					}
 					if (it->second.check_op(targets[i])) // check if the target user an operator
@@ -84,22 +88,18 @@ void kick(unsigned int fd, std::vector<std::string> &s, Server &serv)
 					if (it->second.check_member(targets[i])) // check if the target user a member
 					{
 						it->second.pop(targets[i]);
+						err = ":" + nick + "!" + user + "@" + host + " KICK " + s[1] + " " + clients_map[targets[i]].getNickname() + " :" + reason + "\r\n"; //reason must be filled
+						send(fd, err.c_str(), err.size() , 0);
 						if (it->second.get_members().empty())
 						{
 							channels.erase(it);
 						}
-					}
-					else
-					{
-						err = ":ft_irc 441 " + nick + " " + s[2] + " " + it->first + " :They aren't on that channel\r\n";
-						send(fd, err.c_str(), err.size() , 0);
 					}
 				}
 			}
 			return ;
 		}
 	}
-	//":" + nick + "!" + user + "@" + host + " KICK " + channel + " " + target + " :" + reason + "\r\n" this is it
 
     err = ":ft_irc 403 " + nick + " " + s[1] + " :No such channel\r\n";
     send(fd, err.c_str(), err.size() , 0);

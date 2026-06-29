@@ -7,6 +7,8 @@ void invite(unsigned int fd, std::vector<std::string> &s, Server &serv)
 	std::map<int, Client> &clients_map = serv.get_clients_map();
 	std::string err;
 	std::string nick = clients_map[fd].getNickname();
+	std::string user = clients_map[fd].getUsername();
+	std::string host = clients_map[fd].get_host();
 
     if (!clients_map[fd].IsRegistered())
     {
@@ -63,7 +65,7 @@ void invite(unsigned int fd, std::vector<std::string> &s, Server &serv)
 			it->second.add_invite(target_fd);
 			err = ":ft_irc 341 " + nick + " " + s[2] + " " + (it->second).get_name() + "\r\n";
         	send(fd, err.c_str(), err.size() , 0);
-			err = ":" + nick + "!" + user + "@" + host + " INVITE " + target + " :" + channel + "\r\n";//this one
+			err = ":" + nick + "!" + user + "@" + host + " INVITE " + s[2] + " :" + (it->second).get_name() + "\r\n";
 			send(target_fd, err.c_str(), err.size() , 0);
 
 			//send messages to the target and the caller

@@ -70,9 +70,11 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 	std::string err;
 	std::string nick;
 	std::string user;
+	std::string host;
 	int	check = 0;
 	nick = clients_map[fd].getNickname();
 	user = clients_map[fd].getUsername();
+	host = clients_map[fd].get_host();
 
     if (!clients_map[fd].IsRegistered()) // is the client authenticated in the server ?
     {
@@ -170,8 +172,8 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 			{
 				channels[channels_name[i]].set_key(channels_key[i]);
 			}
-			// err = ":" + nick + "!" + user + "@" + host + " JOIN " + channels_name[i] + "\r\n";
-			// send(fd, err.c_str(), err.size() , 0);
+			err = ":" + nick + "!" + user + "@" + host + " JOIN " + channels_name[i] + "\r\n";
+			send(fd, err.c_str(), err.size() , 0);
 		}
 		check = 0;
 

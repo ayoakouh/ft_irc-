@@ -244,7 +244,9 @@ void Server::run()
             {
                 while(1)
                 {
-                    client_fd = accept(Server_fd, NULL, NULL);
+                    struct sockaddr_in client_addr;
+                    socklen_t len = sizeof(client_addr);
+                    client_fd = accept(Server_fd, (struct sockaddr*)&client_addr, &len);
                     if(client_fd < 0)
                     {
                         if(errno == EAGAIN || errno == EWOULDBLOCK)
@@ -252,10 +254,12 @@ void Server::run()
                         std::cout << "accepte failed !\n";
                         break ;
                     }
-
+                    char ip[INET_ADDRSTRLEN];
+                    inet_ntop(AF_INET, &client_addr.sin_addr, ip, INET_ADDRSTRLEN);
                     HandelNonBlocking(client_fd);
 
                     clients_map[client_fd] = Client(client_fd);
+                    clients_map[client_fd].set_host(ip);
                     AddClientes(client_fd);
                     std::cout << "New client fd = " << client_fd << std::endl;
                 }
