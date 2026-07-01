@@ -11,6 +11,9 @@ Channel::Channel(std::string &channel_name)
 {
 	std::cout << "Channel parametrized constructor.\n";//must be removed after
 }
+
+// cahnnnles.insert(Channel())
+
 Channel::~Channel(void)
 {
 	std::cout << "Destructor Channel.\n";

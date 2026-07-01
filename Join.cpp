@@ -14,7 +14,7 @@ void	handle_case_zero(unsigned int fd, Server &serv)
 	}
 }
 
-void	parsing(std::vector<std::string> &s, std::vector<std::string> &channels_name, std::vector<std::string> &channels_key)
+void	parsing(std::vector<std::string> &s, std::vector<std::string> &channels_name, std::vector<std::string> &channels_key, std::vector<std::string> &channels_origins)
 {
 	std::stringstream ss;
 	std::string word;
@@ -27,6 +27,7 @@ void	parsing(std::vector<std::string> &s, std::vector<std::string> &channels_nam
 			{
 				while (std::getline(ss, word, ','))
 				{
+					channels_origins.push_back(word);
 					for (size_t i = 0; i < word.size();i++)
 						word[i] = std::tolower(word[i]);
 					channels_name.push_back(word);
@@ -67,6 +68,7 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 	std::map<int, Client> &clients_map = serv.get_clients_map();
 	std::vector<std::string> channels_name;
 	std::vector<std::string> channels_key;
+	std::vector<std::string> channels_origins;
 	std::string err;
 	std::string nick;
 	std::string user;
@@ -82,7 +84,7 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
         send(fd, err.c_str(), err.size() , 0);
         return;
     }
-    if (s.size() < 2) // did user provide a channel?
+    if (s.size() < 2) // did user provide a channel? 
     {
 		err = ":ft_irc 461 " + nick + " JOIN :Not enough parameters\r\n";
         send(fd, err.c_str(), err.size() , 0);
@@ -93,19 +95,13 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 		handle_case_zero(fd, serv);
 		return ;
 	}
-	parsing(s,channels_name, channels_key);
-	// //printing the vector
-	// for (size_t i = 0; i < channels_name.size();i++)
-	// {
-	// 	std::cout << "hello " << channels_name[i] <<"\n";
-	// }
+	parsing(s,channels_name, channels_key, channels_origins);
 	std::map<std::string, Channel> &channels = serv.getChannels();
 	for (size_t i = 0; i < channels_name.size(); i++) //code in here
 	{
 		if (channels_name[i].size() <= 1 || channels_name[i].size() > 200) // is the channel name valid?
 		{
-			std::cerr << "Invalid channel size.\n";
-			// return ;
+			std::cerr << "Invalid channel size.\n"; //error not valid
 			continue;
 		}
 		if (check_channel(channels_name[i]))
@@ -121,7 +117,6 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 				check = 1;
 				if (it->second.check_member(fd)) // user already in channel?
 				{
-					std::cout << "User already in channel.\n";
 					break ;
 				}
 				if (it->second.get_members().size() >= it->second.get_channel_size()) // is the channel already full?
@@ -165,14 +160,14 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 		}
 		if (!check)
 		{
-			channels[channels_name[i]] = Channel(channels_name[i]);
-			channels[channels_name[i]].add(fd);
-			channels[channels_name[i]].become_op(fd);
+			channels[channels_origins[i]] = Channel(channels_origins[i]);
+			channels[channels_origins[i]].add(fd);
+			channels[channels_origins[i]].become_op(fd);
 			if (i < channels_key.size())
 			{
-				channels[channels_name[i]].set_key(channels_key[i]);
+				channels[channels_origins[i]].set_key(channels_key[i]);
 			}
-			err = ":" + nick + "!" + user + "@" + host + " JOIN " + channels_name[i] + "\r\n";
+			err = ":" + nick + "!" + user + "@" + host + " JOIN " + channels_origins[i] + "\r\n";
 			send(fd, err.c_str(), err.size() , 0);
 		}
 		check = 0;

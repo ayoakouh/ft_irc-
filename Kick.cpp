@@ -12,6 +12,41 @@ void fill_users(std::vector<std::string> &users, std::string &s)
 	}
 }
 
+void ft_errors(int check, int fd, std::string &nick, std::string &channel, std::string user)
+{
+	std::string err;
+	if (check == 1)
+	{
+		err = ":ft_irc 451 * :You have not registered\r\n";
+        send(fd, err.c_str(), err.size() , 0);
+	}
+	else if (check == 2)
+	{
+		err = ":ft_irc 461 " + nick + " KICK :Not enough parameters\r\n";
+        send(fd, err.c_str(), err.size() , 0);
+	}
+	else if (check == 3)
+	{
+		err = ":ft_irc 401 " + nick + " " + user + " :No such nick/channel\r\n";
+		send(fd, err.c_str(), err.size() , 0);
+	}
+	else if (check == 4)
+	{
+		err = ":ft_irc 442 " + nick + " " + channel + " :You're not on that channel\r\n";
+		send(fd, err.c_str(), err.size() , 0);
+	}
+	else if (check == 5)
+	{
+		err = ":ft_irc 482 " + nick + " " + channel + " :You're not channel operator\r\n";
+		send(fd, err.c_str(), err.size() , 0);
+	}
+	else if (check == 6)
+	{
+		err = ":ft_irc 441 " + nick + " " + user + " " + channel + " :They aren't on that channel\r\n";
+		send(fd, err.c_str(), err.size() , 0);
+	}
+}
+
 
 void kick(unsigned int fd, std::vector<std::string> &s, Server &serv)
 {
@@ -19,22 +54,17 @@ void kick(unsigned int fd, std::vector<std::string> &s, Server &serv)
 	std::vector<std::string> users;
 	std::vector<int> targets;
 	std::map<int, Client> &clients_map = serv.get_clients_map(); // fill the fds of users
-	std::string err;
 	std::string nick = clients_map[fd].getNickname();
 	std::string user = clients_map[fd].getUsername();
 	std::string host = clients_map[fd].get_host();
 
     if (!clients_map[fd].IsRegistered())
     {
-        err = ":ft_irc 451 * :You have not registered\r\n";
-        send(fd, err.c_str(), err.size() , 0);
-        return;
+        return (ft_errors(1, fd, nick, nick, nick));
     }
 	if (s.size() != 2 && s.size() != 3) // number of params are correct
 	{
-        err = ":ft_irc 461 " + nick + " KICK :Not enough parameters\r\n";
-        send(fd, err.c_str(), err.size() , 0);
-		return ;
+        return (ft_errors(1, fd, nick, nick, nick));
 	}
 	fill_users(users, s[2]);
 	for (size_t i = 0; i < users.size(); i++)
@@ -50,8 +80,8 @@ void kick(unsigned int fd, std::vector<std::string> &s, Server &serv)
 		targets.push_back(target_fd);
 		if (target_fd == -1)
 		{
-			err = ":ft_irc 401 " + nick + " " + s[2] + " :No such nick/channel\r\n";
-			send(fd, err.c_str(), err.size() , 0);
+			// err = ":ft_irc 401 " + nick + " " + users[i] + " :No such nick/channel\r\n";
+			// send(fd, err.c_str(), err.size() , 0);
 		}
 		target_fd = -1;
 	}
@@ -63,14 +93,14 @@ void kick(unsigned int fd, std::vector<std::string> &s, Server &serv)
 		{
 			if (!it->second.check_member(fd))
 			{
-				err = ":ft_irc 442 " + nick + " " + it->first + " :You're not on that channel\r\n";
-				send(fd, err.c_str(), err.size() , 0);
+				// err = ":ft_irc 442 " + nick + " " + it->first + " :You're not on that channel\r\n";
+				// send(fd, err.c_str(), err.size() , 0);
 				return ;
 			}
 			if (!it->second.check_op(fd)) // is the caller an operator of the channel
 			{
-				err = ":ft_irc 482 " + nick + " " + it->first + " :You're not channel operator\r\n";
-				send(fd, err.c_str(), err.size() , 0);
+				// err = ":ft_irc 482 " + nick + " " + it->first + " :You're not channel operator\r\n";
+				// send(fd, err.c_str(), err.size() , 0);
 				return ;
 			}
 			for (size_t i = 0; i < targets.size(); i++)
@@ -79,8 +109,8 @@ void kick(unsigned int fd, std::vector<std::string> &s, Server &serv)
 				{
 					if (!it->second.check_member(targets[i]))
 					{
-						err = ":ft_irc 441 " + nick + " " + s[2] + " " + it->first + " :They aren't on that channel\r\n";
-						send(fd, err.c_str(), err.size() , 0);
+						// err = ":ft_irc 441 " + nick + " " + users[i] + " " + it->first + " :They aren't on that channel\r\n";
+						// send(fd, err.c_str(), err.size() , 0);
 						continue ;
 					}
 					if (it->second.check_op(targets[i])) // check if the target user an operator
@@ -88,8 +118,8 @@ void kick(unsigned int fd, std::vector<std::string> &s, Server &serv)
 					if (it->second.check_member(targets[i])) // check if the target user a member
 					{
 						it->second.pop(targets[i]);
-						err = ":" + nick + "!" + user + "@" + host + " KICK " + s[1] + " " + clients_map[targets[i]].getNickname() + " :" + reason + "\r\n"; //reason must be filled
-						send(fd, err.c_str(), err.size() , 0);
+						//err = ":" + nick + "!" + user + "@" + host + " KICK " + s[1] + " " + clients_map[targets[i]].getNickname() + " :" + reason + "\r\n"; //reason must be filled
+						//send(fd, err.c_str(), err.size() , 0);
 						if (it->second.get_members().empty())
 						{
 							channels.erase(it);
