@@ -14,9 +14,30 @@ void TryRegister(Client& client)
     }
     if(!client.IsRegistered() && client.isAuthenticated() && !client.getNickname().empty() && !client.getUsername().empty())
     {
-        std::cout<<"is good>>\n";
         client.SetRegistered(true);
-        SendMessage(client.getFd(), ":server 001 " + client.getNickname() + " :Welcom to IRC\r\n");
+        std::string serverName = "irc.server.com";
+        std::string nickName = client.getNickname();
+        std::string netName = "MyIRCNetwork";
+        std::string Version = "1.0";
+        std::string user = client.getUsername();
+        SendMessage(client.getFd(), ":" + serverName + " 001 " + 
+        nickName +  " :Welcome to the " + netName + " Network, "
+            + nickName + "!" + user + "@localhost\r\n");
+        SendMessage(client.getFd(), ":" + serverName + " 002 " + 
+        nickName +  " :Your host is " + serverName + "running Version "
+            + Version + "\r\n");
+        SendMessage(client.getFd(), ":" + serverName + " 003 " + 
+        nickName +  " :This server was created ");
+        SendMessage(client.getFd(), ":" + serverName + " 004 " + 
+        nickName +  " " + serverName + " " + Version + " o " + "itkol\r\n");
+        SendMessage(client.getFd(),
+        ":" + serverName + " 005 " + nickName +
+        " NICKLEN=30 CHANNELLEN=50 CHANTYPES=# PREFIX=(o)@"
+        " :are supported by this server\r\n");
+        SendMessage(client.getFd(),
+            ":" + serverName + " 422 " + nickName +
+            " :MOTD File is missing\r\n");
+        std::cout << "Client registered: " << nickName << "\n";    
     }
 }
 
@@ -25,24 +46,24 @@ void pass(int fd, std::vector<std::string> &s, Server& serv)
 {
 
     Client& client = serv.GetClient(fd);
+    std::string helper = client.getNickname().empty() ? "*" : client.getNickname();
     if(client.IsRegistered())
     {
-        SendMessage(fd, "462 :You may not reregister\r\n");
+        SendMessage(fd, ":irc.server.com 462 " + helper + " :You may not reregister\r\n");
         return ;
     }
     if(s.size() < 2)
     {
-        SendMessage(fd, "461 PASS :Not enough parameters\r\n");
+        SendMessage(fd, ":irc.server.com 461 " + helper + " PASS :Not enough parameters\r\n");
         return ;
     }
     if(s[1] != serv.GetPassword())
     {
-        SendMessage(fd, "464 :Password incorrect\r\n");
+        SendMessage(fd, ":irc.server.com 464 " + helper + " :Password incorrect\r\n");
         return ;
     }
     client.setPassSent(true);
-    client.setAuthenticated(true);
-    // TryRegister(client);
+
 }
 
 bool Server::NickIsExist(const std::string& nick)
@@ -75,20 +96,21 @@ bool isValidNick(const std::string& nick)
 void nick(int fd, std::vector<std::string> &s, Server& serv)
 {
     Client& client = serv.GetClient(fd);
+    std::string target = client.getNickname().empty() ? "*" : client.getNickname();
     if(s.size() < 2)
     {
-        SendMessage(fd, "431 :No nickname given\r\n");
+        SendMessage(fd, ":irc.server.com 431 "+ target + " :No nickname given\r\n");
         return ;
     }
     std::string helper = s[1];
     if(!isValidNick(helper))
     {
-        SendMessage(fd, "432 :Erroneous nickname\r\n");
+        SendMessage(fd, ":irc.server.com 432 " + target + " " + helper +  " :Erroneous nickname\r\n");
         return ;
     }
     if (serv.NickIsExist(helper))
     {
-        SendMessage(fd, "433 :Nickname is already in use\r\n");
+        SendMessage(fd, ":irc.server.com 433 " + target + " " + helper + " :Nickname is already in use\r\n");
         return ;
     }
     client.setNickname(helper);
@@ -98,15 +120,15 @@ void nick(int fd, std::vector<std::string> &s, Server& serv)
 void user(int fd, std::vector<std::string> &s, Server& serv)
 {
     Client& client = serv.GetClient(fd);
-
+    std::string target = client.getNickname().empty() ? "*" : client.getNickname();
     if(client.IsRegistered())
     {
-        SendMessage(fd, "462 :You may not reregister\r\n");
+        SendMessage(fd, ":irc.server.com 462 " + target + " :You may not reregister\r\n");
         return ;
     }
     if(s.size() < 5)
     {
-        SendMessage(fd, "461 USER :Not enough parameters\r\n");
+        SendMessage(fd, ":irc.server.com 461 " + target + " USER :Not enough parameters\r\n");
         return ;
     }
     if(client.getUsername().empty())

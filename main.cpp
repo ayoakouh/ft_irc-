@@ -1,6 +1,31 @@
 #include "Server.hpp"
+#include<sstream>
 
+void ParsePassword(std::string pass)
+{
+    if(pass == "")
+        throw std::runtime_error("Pass is Empty; ");
+    for(size_t i = 0; i < pass.size(); i++)
+    {
+        if(!isprint(pass[i]))
+            throw std::runtime_error("Pass Containe No Printable Character !");
+        if(pass[i] == ' ' || pass[i] == '\t')
+            throw std::runtime_error("Pass Containe tab && spaces !");
+    }
+}
+long ParsePort(std::string Port)
+{
+    if(Port.size() == 0)
+        throw std::runtime_error("Port is empty;");
+    char *end;
+    long number = strtol(Port.c_str(), &end, 10);
 
+    if(number < 3 || number > 65356)
+        throw std::runtime_error("Port Must be > 0 && < 65356");
+    if(*end != '\0')
+        throw std::runtime_error("port should be intger !");
+    return number;
+}
 int main(int argc, char **argv)
 {
     if (argc != 3)
@@ -11,21 +36,16 @@ int main(int argc, char **argv)
 
     try
     {
-		std::vector<std::string> s; // "just for testing"
-        int port = std::atoi(argv[1]);
+        int Port = 0;
+        signal(SIGPIPE, SIG_IGN);
+		std::vector<std::string> s;
+        std::string port = argv[1];
         std::string password = argv[2];
-
-        Server server(port, password);
+        ParsePassword(password);
+        Port = ParsePort(port);
+        Server server(Port, password);
 
         server.CreateServer();
-		// if (s[0] == "JOIN")
-		// {
-			
-		// }
-		// else if (s[0] == "INVITE")
-		// {
-
-		// }
         std::cout << "Server is running..." << std::endl;
         while (true)
         {
