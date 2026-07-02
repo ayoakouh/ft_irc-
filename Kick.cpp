@@ -45,6 +45,11 @@ void ft_errors(int check, int fd, std::string &nick, std::string &channel, std::
 		err = ":ft_irc 441 " + nick + " " + user + " " + channel + " :They aren't on that channel\r\n";
 		send(fd, err.c_str(), err.size() , 0);
 	}
+	else if (check == 7)
+	{
+		err = ":ft_irc 403 " + nick + " " + channel + " :No such channel\r\n";
+    	send(fd, err.c_str(), err.size() , 0);
+	}
 }
 
 
@@ -57,6 +62,7 @@ void kick(unsigned int fd, std::vector<std::string> &s, Server &serv)
 	std::string nick = clients_map[fd].getNickname();
 	std::string user = clients_map[fd].getUsername();
 	std::string host = clients_map[fd].get_host();
+	std::string	reason;
 
     if (!clients_map[fd].IsRegistered())
     {
@@ -64,7 +70,7 @@ void kick(unsigned int fd, std::vector<std::string> &s, Server &serv)
     }
 	if (s.size() != 2 && s.size() != 3) // number of params are correct
 	{
-        return (ft_errors(1, fd, nick, nick, nick));
+        return (ft_errors(2, fd, nick, nick, nick));
 	}
 	fill_users(users, s[2]);
 	for (size_t i = 0; i < users.size(); i++)
@@ -80,8 +86,7 @@ void kick(unsigned int fd, std::vector<std::string> &s, Server &serv)
 		targets.push_back(target_fd);
 		if (target_fd == -1)
 		{
-			// err = ":ft_irc 401 " + nick + " " + users[i] + " :No such nick/channel\r\n";
-			// send(fd, err.c_str(), err.size() , 0);
+        	ft_errors(3, fd, nick, s[1], users[i]);
 		}
 		target_fd = -1;
 	}
@@ -92,25 +97,16 @@ void kick(unsigned int fd, std::vector<std::string> &s, Server &serv)
 		if (it->first == s[1]) // does the channel exist
 		{
 			if (!it->second.check_member(fd))
-			{
-				// err = ":ft_irc 442 " + nick + " " + it->first + " :You're not on that channel\r\n";
-				// send(fd, err.c_str(), err.size() , 0);
-				return ;
-			}
+        		return (ft_errors(4, fd, nick, s[1], nick));
 			if (!it->second.check_op(fd)) // is the caller an operator of the channel
-			{
-				// err = ":ft_irc 482 " + nick + " " + it->first + " :You're not channel operator\r\n";
-				// send(fd, err.c_str(), err.size() , 0);
-				return ;
-			}
+        		return (ft_errors(5, fd, nick, s[1], nick));
 			for (size_t i = 0; i < targets.size(); i++)
 			{
 				if (targets[i] != -1)
 				{
 					if (!it->second.check_member(targets[i]))
 					{
-						// err = ":ft_irc 441 " + nick + " " + users[i] + " " + it->first + " :They aren't on that channel\r\n";
-						// send(fd, err.c_str(), err.size() , 0);
+						ft_errors(5, fd, nick, s[1], users[i]);
 						continue ;
 					}
 					if (it->second.check_op(targets[i])) // check if the target user an operator
@@ -125,13 +121,14 @@ void kick(unsigned int fd, std::vector<std::string> &s, Server &serv)
 							channels.erase(it);
 						}
 					}
+					else
+						ft_errors(6, fd, nick, s[1], users[i]);
 				}
 			}
 			return ;
 		}
 	}
 
-    err = ":ft_irc 403 " + nick + " " + s[1] + " :No such channel\r\n";
-    send(fd, err.c_str(), err.size() , 0);
+    ft_errors(7, fd, nick, s[1], nick);
 	return ;
 }
