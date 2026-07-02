@@ -2,13 +2,16 @@
 #include "Client.hpp"
 #include "Server.hpp"
 
-void	handle_case_zero(unsigned int fd, Server &serv)
+void	handle_case_zero(unsigned int fd, Server &serv, std::string &nick, std::string &user, std::string &host)
 {
 	std::map<std::string, Channel> &channels = serv.getChannels();
+	std::string part;
 	for (std::map<std::string, Channel>::iterator it = channels.begin(); it != channels.end(); it++)
 	{
 		if (it->second.check_member(fd))
 		{
+			part = ":" + nick + "!" + user + "@" + host + " PART " + it->first + "\r\n";
+			send(fd, part.c_str(), part.size() , 0);
 			it->second.pop(fd);	
 		}
 	}
@@ -49,18 +52,51 @@ int	check_channel(std::string &s)
 {
 	for (size_t i = 0; i < s.size(); i++) // is the channel name valid?
     {
-        if (!i && s[i] != '#')
-		{
-			std::cerr << "Channel name does not start with #\n";
+        if (!i && s[i] != '#' || std::isspace(s[i]) || s[i] == ',' || s[i] == 7) //must revise before push
 			return (1);
-		}
-        if (std::isspace(s[i]) || s[i] == ',' || s[i] == 7) //must revise before push
-		{
-			std::cerr << "Not valid\n";
-			return (1);
-		}
     }
 	return (0);
+}
+
+void	ft_errors(int check, int fd, std::string &nick, std::string &channel, const std::string &topic)
+{
+	std::string err;
+	if (check == 1)
+	{
+		err = ":ft_irc 451 * :You have not registered\r\n";
+        send(fd, err.c_str(), err.size() , 0);
+	}
+	else if (check == 2)
+	{
+		err = ":ft_irc 461 " + nick + " JOIN :Not enough parameters\r\n";
+        send(fd, err.c_str(), err.size() , 0);
+	}
+	else if (check == 3)
+	{
+		err = ":ft_irc 476 " + nick + " " + channel + " :Bad Channel Mask\r\n"; 
+        send(fd, err.c_str(), err.size() , 0);
+	}
+	else if (check == 4)
+	{
+		err = ":ft_irc 471 " + nick + " " + channel + " :Cannot join channel (+l)\r\n";
+		send(fd, err.c_str(), err.size() , 0);
+	}
+	else if (check == 5)
+	{
+		err = ":ft_irc 473 " + nick + " " + channel + " :Cannot join channel (+i)\r\n";
+		send(fd, err.c_str(), err.size() , 0);
+	}
+	else if (check == 6)
+	{
+		err = ":ft_irc 475 " + nick + " " + channel + " :Cannot join channel (+k)\r\n";
+		send(fd, err.c_str(), err.size() , 0);
+	}
+	else if (check == 7)
+	{
+		err =":ft_irc 332 " + nick + " " + channel + " :" + topic + "\r\n";
+		send(fd, err.c_str(), err.size() , 0);
+
+	}
 }
 
 void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
@@ -79,20 +115,12 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 	host = clients_map[fd].get_host();
 
     if (!clients_map[fd].IsRegistered()) // is the client authenticated in the server ?
-    {
-        err = ":ft_irc 451 * :You have not registered\r\n";
-        send(fd, err.c_str(), err.size() , 0);
-        return;
-    }
+		return (ft_errors(1, fd, nick, nick, nick));
     if (s.size() < 2) // did user provide a channel? 
-    {
-		err = ":ft_irc 461 " + nick + " JOIN :Not enough parameters\r\n";
-        send(fd, err.c_str(), err.size() , 0);
-        return ;
-    }
+		return (ft_errors(2, fd, nick, nick, nick));
 	if (s[1] == "0")
 	{
-		handle_case_zero(fd, serv);
+		handle_case_zero(fd, serv, nick, user, host);
 		return ;
 	}
 	parsing(s,channels_name, channels_key, channels_origins);
@@ -101,13 +129,12 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 	{
 		if (channels_name[i].size() <= 1 || channels_name[i].size() > 200) // is the channel name valid?
 		{
-			std::cerr << "Invalid channel size.\n"; //error not valid
+			ft_errors(3, fd, nick, channels_origins[i], nick);
 			continue;
 		}
 		if (check_channel(channels_name[i]))
 		{
-			err = ":ft_irc 476 " + nick + " " + channels_name[i] + " :Bad Channel Mask\r\n";
-			send(fd, err.c_str(), err.size() , 0);
+			ft_errors(3, fd, nick, channels_origins[i], nick);
 			continue ;
 		}
 		for (std::map<std::string, Channel>::iterator it = channels.begin(); it != channels.end(); it++)
@@ -121,8 +148,7 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 				}
 				if (it->second.get_members().size() >= it->second.get_channel_size()) // is the channel already full?
 				{
-					err = ":ft_irc 471 " + nick + " " + it->first + " :Cannot join channel (+l)\r\n";
-					send(fd, err.c_str(), err.size() , 0);
+					ft_errors(4, fd, nick, channels_origins[i], nick);
 					break ;
 				}
 				if (it->second.get_invite_only()) // is the channel invite only?
@@ -135,8 +161,7 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 					}
 					else
 					{
-						err = ":ft_irc 473 " + nick + " " + it->first + " :Cannot join channel (+i)\r\n";
-						send(fd, err.c_str(), err.size() , 0);
+						ft_errors(5, fd, nick, channels_origins[i], nick);
 						break ;
 					}
 				}
@@ -144,16 +169,14 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 				{
 					if (s.size() < 3 || i >= channels_key.size() || it->second.get_key() != channels_key[i]) // is the password correct?
 					{
-						err = ":ft_irc 475 " + nick + " " + it->first + " :Cannot join channel (+k)\r\n";
-						send(fd, err.c_str(), err.size() , 0);
+						ft_errors(6, fd, nick, channels_origins[i], nick);
 						break ;
 					}
 				}
 				it->second.add(fd);
 				if (!it->second.getTopic().empty())
 				{
-					err =":ft_irc 332 " + nick + " " + it->first + " :" + it->second.getTopic() + "\r\n";
-					send(fd, err.c_str(), err.size() , 0);
+					ft_errors(7, fd, nick, channels_origins[i], it->second.getTopic());
 				}
 				break ;
 			}

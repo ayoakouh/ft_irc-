@@ -63,12 +63,13 @@ void kick(unsigned int fd, std::vector<std::string> &s, Server &serv)
 	std::string user = clients_map[fd].getUsername();
 	std::string host = clients_map[fd].get_host();
 	std::string	reason;
+	std::string err;
 
     if (!clients_map[fd].IsRegistered())
     {
         return (ft_errors(1, fd, nick, nick, nick));
     }
-	if (s.size() != 2 && s.size() != 3) // number of params are correct
+	if (s.size() < 3 || s.size() > 4) // number of params are correct
 	{
         return (ft_errors(2, fd, nick, nick, nick));
 	}
@@ -89,6 +90,10 @@ void kick(unsigned int fd, std::vector<std::string> &s, Server &serv)
         	ft_errors(3, fd, nick, s[1], users[i]);
 		}
 		target_fd = -1;
+	}
+	if (s.size() == 4)
+	{
+		reason = s[3];
 	}
 	//if no reason is provided use a default reason, maybe the name of the one getting kicked
 	std::map<std::string, Channel> &channels = serv.getChannels();
@@ -113,13 +118,13 @@ void kick(unsigned int fd, std::vector<std::string> &s, Server &serv)
 						it->second.pop_op(targets[i]);
 					if (it->second.check_member(targets[i])) // check if the target user a member
 					{
+						if (reason.empty())
+							reason = clients_map[targets[i]].getNickname();
+						err = ":" + nick + "!" + user + "@" + host + " KICK " + s[1] + " " + clients_map[targets[i]].getNickname() + " :" + reason + "\r\n"; //reason must be filled
+						send(fd, err.c_str(), err.size() , 0);
 						it->second.pop(targets[i]);
-						//err = ":" + nick + "!" + user + "@" + host + " KICK " + s[1] + " " + clients_map[targets[i]].getNickname() + " :" + reason + "\r\n"; //reason must be filled
-						//send(fd, err.c_str(), err.size() , 0);
 						if (it->second.get_members().empty())
-						{
 							channels.erase(it);
-						}
 					}
 					else
 						ft_errors(6, fd, nick, s[1], users[i]);
