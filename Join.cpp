@@ -52,7 +52,7 @@ int	check_channel(std::string &s)
 {
 	for (size_t i = 0; i < s.size(); i++) // is the channel name valid?
     {
-        if (!i && s[i] != '#' || std::isspace(s[i]) || s[i] == ',' || s[i] == 7) //must revise before push
+        if (!i && (s[i] != '#' || std::isspace(s[i]) || s[i] == ',' || s[i] == 7)) //must revise before push
 			return (1);
     }
 	return (0);
@@ -99,6 +99,11 @@ void	ft_errors(int check, int fd, std::string &nick, std::string &channel, const
 	else if (check == 8)
 	{
 		err =":ft_irc 331 " + nick + " " + channel + " :No topic is set\r\n";
+		send(fd, err.c_str(), err.size() , 0);
+	}
+	else if (check == 9)
+	{
+		err = ":ft_irc 366 " + nick + " " + channel + " :End of /NAMES list\r\n";
 		send(fd, err.c_str(), err.size() , 0);
 	}
 }
@@ -176,11 +181,12 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 				if (!it->second.getTopic().empty())
 				{
 					ft_errors(7, fd, nick, channels_origins[i], it->second.getTopic());
-					// err = ":ft_irc 333 " + nick + " " + channels_origins[i] + " " + setterNick + " " + setAt + "\r\n";
+					// err = ":ft_irc 333 " + nick + " " + channels_origins[i] + " " + setterNick + " " + setAt + "\r\n"; topicsetter and time
 					send(fd, err.c_str(), err.size() , 0);
 				}
 				else
 					ft_errors(8, fd, nick, channels_origins[i], it->second.getTopic());
+				ft_errors(9, fd, nick, channels_origins[i], it->second.getTopic());
 				break ;
 			}
 		}
@@ -195,6 +201,7 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 			}
 			err = ":" + nick + "!" + user + "@" + host + " JOIN " + channels_origins[i] + "\r\n";
 			send(fd, err.c_str(), err.size() , 0);
+			ft_errors(9, fd, nick, channels_origins[i], nick);
 		}
 		check = 0;
 
