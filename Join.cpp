@@ -95,7 +95,11 @@ void	ft_errors(int check, int fd, std::string &nick, std::string &channel, const
 	{
 		err =":ft_irc 332 " + nick + " " + channel + " :" + topic + "\r\n";
 		send(fd, err.c_str(), err.size() , 0);
-
+	}
+	else if (check == 8)
+	{
+		err =":ft_irc 331 " + nick + " " + channel + " :No topic is set\r\n";
+		send(fd, err.c_str(), err.size() , 0);
 	}
 }
 
@@ -127,15 +131,10 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 	std::map<std::string, Channel> &channels = serv.getChannels();
 	for (size_t i = 0; i < channels_name.size(); i++) //code in here
 	{
-		if (channels_name[i].size() <= 1 || channels_name[i].size() > 200) // is the channel name valid?
+		if (check_channel(channels_name[i]) || channels_name[i].size() <= 1 || channels_name[i].size() > 200) // is the channel name valid?
 		{
 			ft_errors(3, fd, nick, channels_origins[i], nick);
 			continue;
-		}
-		if (check_channel(channels_name[i]))
-		{
-			ft_errors(3, fd, nick, channels_origins[i], nick);
-			continue ;
 		}
 		for (std::map<std::string, Channel>::iterator it = channels.begin(); it != channels.end(); it++)
 		{
@@ -177,7 +176,11 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 				if (!it->second.getTopic().empty())
 				{
 					ft_errors(7, fd, nick, channels_origins[i], it->second.getTopic());
+					// err = ":ft_irc 333 " + nick + " " + channels_origins[i] + " " + setterNick + " " + setAt + "\r\n";
+					send(fd, err.c_str(), err.size() , 0);
 				}
+				else
+					ft_errors(8, fd, nick, channels_origins[i], it->second.getTopic());
 				break ;
 			}
 		}
