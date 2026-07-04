@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <sstream>
+#include <map>
 
 class Channel
 {
@@ -18,6 +19,7 @@ class Channel
 		size_t		channel_size;
         std::string topic; // TOPIC
         bool topic_restricted; // TOPIC
+        std::map<std::string, bool> channel_members;
     public:
         Channel(void);
 		Channel(std::string &channel_name);
@@ -47,6 +49,9 @@ class Channel
         void set_key(const std::string &new_key);
         void remove_key();
         void set_bool_key();//this one added for setting the is_key bool
+        void                        set_channel_members(std::string &name, bool b);
+        std::map<std::string, bool> &get_channel_members(void);
+
 
         void set_channel_size(int new_size); // l-/l+
 

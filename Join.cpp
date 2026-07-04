@@ -108,6 +108,20 @@ void	ft_errors(int check, int fd, std::string &nick, std::string &channel, const
 	}
 }
 
+void	ft_fill_nick(std::string &names, Channel &c)
+{
+	std::map<std::string, bool> members = c.get_channel_members();
+	for (std::map<std::string, bool>::iterator it = members.begin(); it != members.end(); it++)
+	{
+		if (!names.empty())
+			names += ' ';
+		if (it->second)
+			names += '@' + it->first;
+		else
+			names += it->first;
+	}
+}
+
 void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 {
 	std::map<int, Client> &clients_map = serv.get_clients_map();
@@ -118,6 +132,7 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 	std::string nick;
 	std::string user;
 	std::string host;
+	std::string names;
 	int	check = 0;
 	nick = clients_map[fd].getNickname();
 	user = clients_map[fd].getUsername();
@@ -178,14 +193,18 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 					}
 				}
 				it->second.add(fd);
+				channels[channels_origins[i]].set_channel_members(nick, false);
+				ft_fill_nick(names, it->second);
 				if (!it->second.getTopic().empty())
 				{
 					ft_errors(7, fd, nick, channels_origins[i], it->second.getTopic());
 					// err = ":ft_irc 333 " + nick + " " + channels_origins[i] + " " + setterNick + " " + setAt + "\r\n"; topicsetter and time
-					send(fd, err.c_str(), err.size() , 0);
+					// send(fd, err.c_str(), err.size() , 0);
 				}
 				else
 					ft_errors(8, fd, nick, channels_origins[i], it->second.getTopic());
+				err = ":ft_irc 353 " + nick + " = " + channels_origins[i] + " :" + names + "\r\n";
+				send(fd, err.c_str(), err.size() , 0);
 				ft_errors(9, fd, nick, channels_origins[i], it->second.getTopic());
 				break ;
 			}
@@ -199,7 +218,11 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 			{
 				channels[channels_origins[i]].set_key(channels_key[i]);
 			}
+			channels[channels_origins[i]].set_channel_members(nick, true);
 			err = ":" + nick + "!" + user + "@" + host + " JOIN " + channels_origins[i] + "\r\n";
+			send(fd, err.c_str(), err.size() , 0);
+			names = '@' + nick;
+			err = ":ft_irc 353 " + nick + " = " + channels_origins[i] + " :" + names + "\r\n";
 			send(fd, err.c_str(), err.size() , 0);
 			ft_errors(9, fd, nick, channels_origins[i], nick);
 		}

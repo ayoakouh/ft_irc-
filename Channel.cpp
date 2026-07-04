@@ -185,3 +185,13 @@ void Channel::set_bool_key()
 {
 	is_key = true;
 }
+
+void Channel::set_channel_members(std::string &name, bool b)
+{
+	channel_members[name] = b;
+}
+
+std::map<std::string, bool> &Channel::get_channel_members(void)
+{
+	return (channel_members);
+}
