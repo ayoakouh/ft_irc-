@@ -142,10 +142,10 @@ std::string Channel::getTopic()
 	return topic;
 }
 
-void Channel::setTopic(const std::string &new_topic)
-{
-	topic = new_topic;
-}
+// void Channel::setTopic(const std::string &new_topic)
+// {
+// 	topic = new_topic;
+// }
 
 bool Channel::isTopicRestricted()
 {
@@ -194,4 +194,25 @@ void Channel::set_channel_members(std::string &name, bool b)
 std::map<std::string, bool> &Channel::get_channel_members(void)
 {
 	return (channel_members);
+}
+
+void Channel::setTopic(const std::string &new_topic, const std::string &new_topic_setter)
+{
+    topic = new_topic;
+    topic_setter = new_topic_setter;
+    timestamp_for_last_topic_set = std::time(NULL); 
+}
+
+std::string &Channel::get_topic_setter(void)
+{
+	return (topic);
+}
+
+std::string Channel::get_timestamp(void)
+{
+	std::string word;
+	std::stringstream ss;
+	ss << timestamp_for_last_topic_set;
+	word = ss.str();
+	return (word);
 }

@@ -211,8 +211,8 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 				if (!it->second.getTopic().empty())
 				{
 					ft_errors(7, fd, nick, channels_origins[i], it->second.getTopic());
-					// err = ":ft_irc 333 " + nick + " " + channels_origins[i] + " " + setterNick + " " + setAt + "\r\n"; topicsetter and time
-					// send(fd, err.c_str(), err.size() , 0);
+					err = ":ft_irc 333 " + nick + " " + channels_origins[i] + " " + it->second.get_topic_setter() + " " + it->second.get_timestamp() + "\r\n";
+					send(fd, err.c_str(), err.size() , 0);
 				}
 				else
 					ft_errors(8, fd, nick, channels_origins[i], it->second.getTopic());
