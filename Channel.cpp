@@ -111,7 +111,7 @@ const std::string &Channel::get_name(void)
 {
 	return (name);
 }
-const std::vector<int> &Channel::get_members(void)
+std::vector<int> &Channel::get_members(void)
 {
 	return (members);
 }

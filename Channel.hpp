@@ -36,7 +36,7 @@ class Channel
 		void	pop_invite(int fd);
 		bool	check_invite(int fd);
 		const std::string &get_name(void);
-		const std::vector<int> &get_members(void);
+		std::vector<int> &get_members(void);
 		bool get_invite_only(void);
         size_t get_channel_size(void);
         std::string getTopic(); // TOPIC

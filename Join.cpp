@@ -10,9 +10,12 @@ void	handle_case_zero(unsigned int fd, Server &serv, std::string &nick, std::str
 	{
 		if (it->second.check_member(fd))
 		{
+			if (it->second.check_op(fd))
+				it->second.pop_op(fd);
 			part = ":" + nick + "!" + user + "@" + host + " PART " + it->first + "\r\n";
 			send(fd, part.c_str(), part.size() , 0);
-			it->second.pop(fd);	
+			it->second.pop(fd);
+
 		}
 	}
 }
@@ -56,6 +59,14 @@ int	check_channel(std::string &s)
 			return (1);
     }
 	return (0);
+}
+
+void ft_send(std::vector<int> &members, std::string &err)
+{
+	for (size_t i = 0; i < members.size(); i++)
+	{
+		send(members[i], err.c_str(), err.size() , 0);
+	}
 }
 
 void	ft_errors(int check, int fd, std::string &nick, std::string &channel, const std::string &topic)
@@ -195,6 +206,8 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 				it->second.add(fd);
 				channels[channels_origins[i]].set_channel_members(nick, false);
 				ft_fill_nick(names, it->second);
+				err = ":" + nick + "!" + user + "@" + host + " JOIN " + channels_origins[i] + "\r\n";
+				ft_send(it->second.get_members(), err);
 				if (!it->second.getTopic().empty())
 				{
 					ft_errors(7, fd, nick, channels_origins[i], it->second.getTopic());
@@ -221,6 +234,7 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 			channels[channels_origins[i]].set_channel_members(nick, true);
 			err = ":" + nick + "!" + user + "@" + host + " JOIN " + channels_origins[i] + "\r\n";
 			send(fd, err.c_str(), err.size() , 0);
+			ft_errors(8, fd, nick, channels_origins[i], nick);
 			names = '@' + nick;
 			err = ":ft_irc 353 " + nick + " = " + channels_origins[i] + " :" + names + "\r\n";
 			send(fd, err.c_str(), err.size() , 0);
