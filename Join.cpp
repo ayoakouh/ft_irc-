@@ -230,5 +230,4 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 
 	}
 	return ;
-
 }
