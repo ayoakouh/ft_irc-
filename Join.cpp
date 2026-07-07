@@ -61,13 +61,13 @@ int	check_channel(std::string &s)
 	return (0);
 }
 
-void ft_send(std::vector<int> &members, std::string &err)
-{
-	for (size_t i = 0; i < members.size(); i++)
-	{
-		send(members[i], err.c_str(), err.size() , 0);
-	}
-}
+// void ft_send(std::vector<int> &members, std::string &err)
+// {
+// 	for (size_t i = 0; i < members.size(); i++)
+// 	{
+// 		send(members[i], err.c_str(), err.size() , 0);
+// 	}
+// }
 
 void	ft_errors(int check, int fd, std::string &nick, std::string &channel, const std::string &topic)
 {

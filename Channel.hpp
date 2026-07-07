@@ -62,5 +62,6 @@ class Channel
 
 };
 
+void ft_send(std::vector<int> &members, std::string &err);
 
 #endif

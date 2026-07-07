@@ -68,7 +68,7 @@ void topic(int fd, std::vector<std::string> &s, Server &serv)
             send(fd, err_not_a_member.c_str(), err_not_a_member.size() , 0);
             return;
         }
-        ch.setTopic(s[2]);
+        // ch.setTopic(s[2]);
         std::string send_M = ":" + clients_map[fd].getNickname() 
                             + "!" + clients_map[fd].getUsername()
                             + "@" + "ft_irc"
