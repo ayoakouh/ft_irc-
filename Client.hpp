@@ -16,6 +16,7 @@ private:
     std::string nickname;
     std::string username;
     bool authenticated;
+    std::string host;
 
 	public:
         Client(int client_fd = -1);
@@ -34,6 +35,8 @@ private:
         void SetRegistered(bool value);
         void setPassSent(bool value);
         bool isPassSent() const;
+        void setHost(const std::string &h);
+        std::string getHost() const;
 };
 
 
