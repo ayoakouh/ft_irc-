@@ -80,3 +80,12 @@ bool Client::isPassSent() const
 {
 	return _passSent;
 }
+
+void Client::setHost(const std::string &h)
+{
+	host = h;
+}
+std::string Client::getHost() const
+{
+	return host;
+}

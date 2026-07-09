@@ -15,6 +15,8 @@
 #include <cstring>
 #include <cerrno>
 #include <vector>
+#include<csignal>
+#include<cstdlib>
 
 #include <sys/event.h>
 #include <sys/time.h>
