@@ -256,7 +256,6 @@ void Server::run()
                         std::cout << "accepte failed !\n";
                         break ;
                     }
-
                     HandelNonBlocking(client_fd);
 
                     clients_map[client_fd] = Client(client_fd);
@@ -274,10 +273,7 @@ void Server::run()
 
 void Server::HandelNonBlocking(int fd)
 {
-    int flag = fcntl(fd, F_GETFL, 0);
-    if(flag < 0)
-        throw std::runtime_error("Fcntl FGETFL failes !");
-    if (fcntl(fd, F_SETFL, flag | O_NONBLOCK) < 0)
+    if (fcntl(fd, F_SETFL, O_NONBLOCK) < 0)
         throw std::runtime_error("Fcntl F_SETFL failes !");
 }
 

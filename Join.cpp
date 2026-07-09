@@ -6,6 +6,8 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 {
 	std::map<int, Client> &clients_map = serv.get_clients_map();
 
+	std::cout << s[0] << std::endl;
+	std::cout << s[1] << std::endl;
     if (!clients_map[fd].isAuthenticated())
     {
         std::string err_authen = ":ft_irc 451 * :You have not registered\r\n";

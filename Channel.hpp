@@ -16,6 +16,8 @@ class Channel
 		std::string key;
 		size_t		channel_size;
         std::string topic; // TOPIC
+        std::string topic_setter; //THE CLIENT THAT LAST SET THE TOPIC
+        std::time_t timestamp_for_last_topic_set; //the last time a user set a TOPIC
         bool topic_restricted; // TOPIC
     public:
         Channel(void);
@@ -33,11 +35,11 @@ class Channel
 		void	pop_invite(int fd);
 		bool	check_invite(int fd);
 		const std::string &get_name(void);
-		const std::vector<int> &get_members(void);
+		const std::vector<int> &get_members(void) const;
 		bool get_invite_only(void);
         size_t get_channel_size(void);
         std::string getTopic(); // TOPIC
-        void setTopic(const std::string &new_topic); // TOPIC
+        void setTopic(const std::string &new_topic, const std::string &new_topic_setter); // TOPIC
         bool isTopicRestricted(); // TOPIC
         void set_Topic_Restricted(bool status); // TOPIC
 		bool check_key(void);// anass you implement this

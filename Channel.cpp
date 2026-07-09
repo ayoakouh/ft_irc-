@@ -108,7 +108,7 @@ const std::string &Channel::get_name(void)
 {
 	return (name);
 }
-const std::vector<int> &Channel::get_members(void)
+const std::vector<int> &Channel::get_members(void) const
 {
 	return (members);
 }
@@ -139,9 +139,11 @@ std::string Channel::getTopic()
 	return topic;
 }
 
-void Channel::setTopic(const std::string &new_topic)
+void Channel::setTopic(const std::string &new_topic, const std::string &new_topic_setter)
 {
 	topic = new_topic;
+	topic_setter = new_topic_setter;
+	timestamp_for_last_topic_set = std::time(NULL); 
 }
 
 bool Channel::isTopicRestricted()

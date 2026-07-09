@@ -105,6 +105,21 @@ void printVector(const std::vector<std::string>& vec)
 
 // }6
 
+// void printChannels(const std::map<std::string, Channel> &serv_channel)
+// {
+//     std::cout << "=== Channels (" << serv_channel.size() << ") ===\n";
+//     for (std::map<std::string, Channel>::const_iterator it = serv_channel.begin();
+//          it != serv_channel.end(); ++it)
+//     {
+//         std::cout << "Key: [" << it->first << "]\n";
+//         const std::vector<int> &members = it->second.get_members();
+//         std::cout << "  Members (" << members.size() << "): ";
+//         for (size_t i = 0; i < members.size(); i++)
+//             std::cout << members[i] << " ";
+//         std::cout << "\n";
+//     }
+//     std::cout << "===================\n";
+// }
 
 
 void privmsg(int fd, std::vector<std::string> &s, Server &serv)
@@ -161,10 +176,12 @@ void privmsg(int fd, std::vector<std::string> &s, Server &serv)
 
         if (target[0] == '#')
         {
-            std::map<std::string, Channel> &serv_channel = serv.getChannels();
 
+            std::map<std::string, Channel> &serv_channel = serv.getChannels();
+            //printChannels(serv_channel);
             if (serv_channel.find(ltarget) == serv_channel.end())
             {
+                ///std::cout << "ltarget : ====> " << ltarget << std::endl;
                 std::string err = ":ft_irc 403 " + clients_map[fd].getNickname() 
                                 + " " + target + " :No such channel\r\n";
                 send(fd, err.c_str(), err.size(), 0);
