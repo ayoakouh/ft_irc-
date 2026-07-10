@@ -11,6 +11,9 @@ Channel::Channel(std::string &channel_name)
 {
 	std::cout << "Channel parametrized constructor.\n";//must be removed after
 }
+
+// cahnnnles.insert(Channel())
+
 Channel::~Channel(void)
 {
 	std::cout << "Destructor Channel.\n";
@@ -178,4 +181,9 @@ void Channel::remove_key()
 void Channel::set_channel_size(int new_size)
 {
 	channel_size = new_size;
-}  
+}
+
+void Channel::set_bool_key()
+{
+	is_key = true;
+}

@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <vector>
+#include <sstream>
 
 class Channel
 {
@@ -47,6 +48,7 @@ class Channel
         void set_invite_only(bool status_of_invite_only);
         void set_key(const std::string &new_key);
         void remove_key();
+        void set_bool_key();//this one added for setting the is_key bool
 
         void set_channel_size(int new_size); // l-/l+
 
