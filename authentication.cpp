@@ -45,6 +45,7 @@ void TryRegister(Client& client)
 void pass(int fd, std::vector<std::string> &s, Server& serv)
 {
 
+
     Client& client = serv.GetClient(fd);
     std::string helper = client.getNickname().empty() ? "*" : client.getNickname();
     if(client.IsRegistered())
@@ -62,8 +63,9 @@ void pass(int fd, std::vector<std::string> &s, Server& serv)
         SendMessage(fd, ":irc.server.com 464 " + helper + " :Password incorrect\r\n");
         return ;
     }
+    std::cout << "help" << std::endl;
     client.setPassSent(true);
-
+    client.setAuthenticated(true);
 }
 
 bool Server::NickIsExist(const std::string& nick)
@@ -113,6 +115,7 @@ void nick(int fd, std::vector<std::string> &s, Server& serv)
         SendMessage(fd, ":irc.server.com 433 " + target + " " + helper + " :Nickname is already in use\r\n");
         return ;
     }
+     std::cout << "help 11" << std::endl;
     client.setNickname(helper);
     TryRegister(client);
 }
@@ -135,5 +138,6 @@ void user(int fd, std::vector<std::string> &s, Server& serv)
     {
         client.setUsername(s[1]);
     }
+     std::cout << "help 991" << std::endl;
     TryRegister(client);
 }

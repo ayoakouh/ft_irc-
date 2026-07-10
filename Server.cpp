@@ -120,6 +120,8 @@ void Server::command_handeler(int fd, std::vector<std::string> Message)
 {
     if (Message.empty())
         return;
+    // for(int i = 0; i < (int)Message.size() ; i++)
+    //     std::cout << Message[i] << "   ";
     if(Message[0] == "PASS")
     {
         pass(fd, Message, *this);
