@@ -6,6 +6,7 @@ void	handle_case_zero(unsigned int fd, Server &serv, std::string &nick, std::str
 {
 	std::map<std::string, Channel> &channels = serv.getChannels();
 	std::string part;
+	std::vector<int> mem;
 	for (std::map<std::string, Channel>::iterator it = channels.begin(); it != channels.end(); it++)
 	{
 		if (it->second.check_member(fd))
@@ -13,9 +14,12 @@ void	handle_case_zero(unsigned int fd, Server &serv, std::string &nick, std::str
 			if (it->second.check_op(fd))
 				it->second.pop_op(fd);
 			part = ":" + nick + "!" + user + "@" + host + " PART " + it->first + "\r\n";
-			send(fd, part.c_str(), part.size() , 0);
+			mem = it->second.get_members();
+			for (int i = 0; i < mem.size(); i++)
+				send(mem[i], part.c_str(), part.size() , 0);
 			it->second.pop(fd);
-
+			if (it->second.get_members().empty())
+				channels.erase(it);
 		}
 	}
 }
@@ -55,7 +59,9 @@ int	check_channel(std::string &s)
 {
 	for (size_t i = 0; i < s.size(); i++) // is the channel name valid?
     {
-        if (!i && (s[i] != '#' || std::isspace(s[i]) || s[i] == ',' || s[i] == 7)) //must revise before push
+        if (!i && s[i] != '#') //must revise before push
+			return (1);
+		if  (std::isspace(s[i]) || s[i] == ',' || s[i] == 7)
 			return (1);
     }
 	return (0);
@@ -133,6 +139,14 @@ void	ft_fill_nick(std::string &names, Channel &c)
 	}
 }
 
+std::string ft_lower_input(const std::string &channel)
+{
+	std::string copy;
+	for (size_t i = 0; i < channel.size();i++)
+		copy[i] = std::tolower(channel[i]);
+	return (copy);
+}
+
 void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 {
 	std::map<int, Client> &clients_map = serv.get_clients_map();
@@ -160,18 +174,18 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 	}
 	parsing(s,channels_name, channels_key, channels_origins);
 	std::map<std::string, Channel> &channels = serv.getChannels();
-	for (size_t i = 0; i < channels_name.size(); i++) //code in here
+	for (size_t i = 0; i < channels_origins.size(); i++) //code in here
 	{
-		if (check_channel(channels_name[i]) || channels_name[i].size() <= 1 || channels_name[i].size() > 200) // is the channel name valid?
+		if (check_channel(channels_origins[i]) || channels_origins[i].size() <= 1 || channels_origins[i].size() > 200) // is the channel name valid?
 		{
 			ft_errors(3, fd, nick, channels_origins[i], nick);
 			continue;
 		}
 		for (std::map<std::string, Channel>::iterator it = channels.begin(); it != channels.end(); it++)
 		{
-			if (it->first == channels_name[i])
+			if (ft_lower_input(it->first) == channels_origins[i])
 			{
-				check = 1;
+				check = 1;//to check if the channel is found
 				if (it->second.check_member(fd)) // user already in channel?
 				{
 					break ;
@@ -187,6 +201,21 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 					{
 						it->second.add(fd);
 						it->second.pop_invite(fd);
+						channels[channels_origins[i]].set_channel_members(nick, false);
+						ft_fill_nick(names, it->second);
+						err = ":" + nick + "!" + user + "@" + host + " JOIN " + channels_origins[i] + "\r\n";
+						ft_send(it->second.get_members(), err);
+						if (!it->second.getTopic().empty())
+						{
+							ft_errors(7, fd, nick, channels_origins[i], it->second.getTopic());
+							err = ":ft_irc 333 " + nick + " " + channels_origins[i] + " " + it->second.get_topic_setter() + " " + it->second.get_timestamp() + "\r\n";
+							send(fd, err.c_str(), err.size() , 0);
+						}
+						else
+							ft_errors(8, fd, nick, channels_origins[i], it->second.getTopic());
+						err = ":ft_irc 353 " + nick + " = " + channels_origins[i] + " :" + names + "\r\n";
+						send(fd, err.c_str(), err.size() , 0);
+						ft_errors(9, fd, nick, channels_origins[i], it->second.getTopic());
 						break ;
 					}
 					else

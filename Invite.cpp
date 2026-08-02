@@ -104,7 +104,7 @@ void invite(unsigned int fd, std::vector<std::string> &s, Server &serv)
 			if (it->second.check_member(target_fd)) // is the target user already in the channel?
 				return (ft_error(6, fd, nick, s[1], s[2]));
 			it->second.add_invite(target_fd);
-			return (ft_success(fd, nick, s[1], user, host, target_fd, s[2]));
+			return (ft_success(fd, nick, s[2], user, host, target_fd, s[1]));
 		}
 	}
 	return (ft_error(7, fd, nick, s[1], s[2]));
