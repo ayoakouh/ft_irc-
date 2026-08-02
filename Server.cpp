@@ -34,10 +34,10 @@ void Server::CreateSocket()
     if(Server_fd < 0)
         throw std::runtime_error("Socket failed: ");
     HandelNonBlocking(Server_fd);
-    // int option_value = 1;
-    // if(setsockopt(Server_fd, SOL_SOCKET, SO_REUSEADDR, &option_value, 
-    //     sizeof(option_value)) < 0)
-    //     throw std::runtime_error("SetSockopt failed ~!");
+    int option_value = 1;
+    if(setsockopt(Server_fd, SOL_SOCKET, SO_REUSEADDR, &option_value, 
+        sizeof(option_value)) < 0)
+        throw std::runtime_error("SetSockopt failed ~!");
 
     std::cout<<"socket is created ;\n";
 }
