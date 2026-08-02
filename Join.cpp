@@ -15,7 +15,7 @@ void	handle_case_zero(unsigned int fd, Server &serv, std::string &nick, std::str
 				it->second.pop_op(fd);
 			part = ":" + nick + "!" + user + "@" + host + " PART " + it->first + "\r\n";
 			mem = it->second.get_members();
-			for (int i = 0; i < mem.size(); i++)
+			for (size_t i = 0; i < mem.size(); i++)
 				send(mem[i], part.c_str(), part.size() , 0);
 			it->second.pop(fd);
 			if (it->second.get_members().empty())
