@@ -1,6 +1,4 @@
-#include "Channel.hpp"
-#include "Client.hpp"
-#include "Server.hpp"
+#include "utils.hpp"
 
 void	handle_case_zero(unsigned int fd, Server &serv, std::string &nick, std::string &user, std::string &host)
 {
@@ -19,7 +17,10 @@ void	handle_case_zero(unsigned int fd, Server &serv, std::string &nick, std::str
 				send(mem[i], part.c_str(), part.size() , 0);
 			it->second.pop(fd);
 			if (it->second.get_members().empty())
+			{
 				channels.erase(it);
+				return ;
+			}
 		}
 	}
 }
@@ -139,14 +140,6 @@ void	ft_fill_nick(std::string &names, Channel &c)
 	}
 }
 
-std::string ft_lower_input(const std::string &channel)
-{
-	std::string copy;
-	for (size_t i = 0; i < channel.size();i++)
-		copy[i] = std::tolower(channel[i]);
-	return (copy);
-}
-
 void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 {
 	std::map<int, Client> &clients_map = serv.get_clients_map();
@@ -176,6 +169,7 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 	std::map<std::string, Channel> &channels = serv.getChannels();
 	for (size_t i = 0; i < channels_origins.size(); i++) //code in here
 	{
+		names.clear();
 		if (check_channel(channels_origins[i]) || channels_origins[i].size() <= 1 || channels_origins[i].size() > 200) // is the channel name valid?
 		{
 			ft_errors(3, fd, nick, channels_origins[i], nick);
@@ -183,7 +177,7 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 		}
 		for (std::map<std::string, Channel>::iterator it = channels.begin(); it != channels.end(); it++)
 		{
-			if (ft_lower_input(it->first) == channels_origins[i])
+			if (ft_lower_input(it->first) == channels_name[i])
 			{
 				check = 1;//to check if the channel is found
 				if (it->second.check_member(fd)) // user already in channel?

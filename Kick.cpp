@@ -1,5 +1,4 @@
-#include "Client.hpp"
-#include "Server.hpp"
+#include "utils.hpp"
 
 
 void fill_users(std::vector<std::string> &users, std::string &s)
@@ -109,7 +108,7 @@ void kick(unsigned int fd, std::vector<std::string> &s, Server &serv)
 	std::map<std::string, Channel> &channels = serv.getChannels();
 	for (std::map<std::string, Channel>::iterator it = channels.begin(); it != channels.end(); it++)
 	{
-		if (it->first == s[1]) // does the channel exist
+		if (ft_lower_input(it->first) == ft_lower_input(s[1])) // does the channel exist
 		{
 			if (!it->second.check_member(fd))
         		return (ft_errors(4, fd, nick, s[1], nick));
@@ -132,7 +131,7 @@ void kick(unsigned int fd, std::vector<std::string> &s, Server &serv)
 					ft_send(it->second.get_members(), err);
 					it->second.pop(targets[i]);
 					if (!check)
-					reason.clear();
+						reason.clear();
 				}
 			}
 			if (it->second.get_members().empty())

@@ -1,16 +1,13 @@
-#include "Client.hpp"
-#include "Server.hpp"
+#include "utils.hpp"
 
-std::string parsing(std::string &channel)
+void parsing(std::string &channel, std::string &word)
 {
 	std::stringstream ss(channel);
-	std::string word;
 	while (std::getline(ss, word))
 	{
 		for (size_t i = 0; i < word.size();i++)
 			word[i] = std::tolower(word[i]);
 	}
-	return (word);
 }
 
 void ft_error(int check, int fd, std::string &nick, std::string &target_nick, std::string &channel)
@@ -86,11 +83,11 @@ void invite(unsigned int fd, std::vector<std::string> &s, Server &serv)
 	}
 	if (target_fd == -1)
 		return (ft_error(3, fd, nick, s[1], s[2]));
-	to_low = parsing(s[2]);
+	parsing(s[2], to_low);
 	std::map<std::string, Channel> &channels = serv.getChannels();
 	for (std::map<std::string, Channel>::iterator it = channels.begin(); it != channels.end(); it++)
 	{
-		if (it->first == to_low) // does the channel exist?
+		if (ft_lower_input(it->first) == to_low) // does the channel exist?
 		{
 			if (!it->second.check_member(fd)) //is the user inviting in the channel?
 				return (ft_error(4, fd, nick, s[1], s[2]));
