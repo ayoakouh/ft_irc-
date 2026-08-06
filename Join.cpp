@@ -145,8 +145,10 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 				{
 					break ;
 				}
-				if (it->second.get_members().size() >= it->second.get_channel_size()) // is the channel already full?
+				if (it->second.get_members().size() >= it->second.get_channel_size() && it->second.get_channel_size() != 0) // is the channel already full?
 				{
+					std::cout << "it->second.get_members().size() : " << it->second.get_members().size() << std::endl;
+					std::cout << "it->second.get_channel_size() : " << it->second.get_channel_size() << std::endl;
 					ft_errors(4, fd, nick, channels_origins[i], nick);
 					break ;
 				}

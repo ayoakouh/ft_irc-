@@ -1,1 +1,28 @@
-I NEED TO ADD RPL_CREATIONTIME (329)
+Before listing tasks, one pattern is worth flagging: **every failure that expects a broadcast reaching bob/carol failed, while almost every self-directed numeric reply to the sender (alice) succeeded** — M02, M23, M33, M41-state, M48, M49 all pass because they're `alice.expect(...)` checks against alice's own connection. That's suspicious for a single shared root cause rather than 27 independent bugs, especially since PRIVMSG, TOPIC, and MODE are the three handlers you personally own. Worth confirming that theory by hand before chasing each failure individually.
+
+## To-check-by-hand checklist
+
+**Priority 0 — confirm the broadcast theory itself (do this first, it disambiguates everything below)**
+- [ ] Open 2 `nc` sessions (dan, bob), both join `#test`. From dan: `PRIVMSG #test :hi` — does bob's terminal print anything at all?
+- [ ] If bob sees nothing: the bug is structural (broadcast/member-iteration code), not per-command. If bob *does* see it over `nc` but the bot still fails: the bug is in the bot's timing/regex, not your server — see Priority 3 below.
+
+**Priority 1 — if broadcasts are genuinely not reaching other members**
+- [ ] In PRIVMSG's channel-message path: confirm you're iterating `ch.get_members()` and calling `send()` per member fd — not accidentally only sending to `fd` (the sender) or an uninitialized/wrong fd
+- [ ] Same check in TOPIC's broadcast path
+- [ ] Same check in MODE's broadcast path (we reviewed this one together — re-view it, since `send(*it, send_M...)` looked correct last time; check nothing changed since)
+- [ ] Check whether `ch.get_members()` itself is populated correctly at this point — e.g. via a `nc` session, JOIN, then have the operator query something that reflects membership, to rule out an empty/stale members list
+
+**Priority 2 — T01 doesn't fit the broadcast theory (it's a self-reply), so check separately**
+- [ ] By hand: fresh channel, no topic set, immediately `TOPIC #test` — do you get exactly `331` back? Compare the literal line against what the bot's regex expects (`RPL_NOTOPIC`, code `331`)
+- [ ] Check whether your `331` reply is arriving *before* some other line the bot's `expect()` might be consuming out of order — e.g. is there a duplicate or unexpected numeric preceding it that could desync the parser
+
+**Priority 3 — rule out bot/harness artifacts before trusting the failure count**
+- [ ] Watch raw traffic (e.g. `nc` in verbose mode, or add a print) for one failing case like M01 (`+i` broadcast) — confirm whether the line is (a) never sent, (b) sent but malformed, or (c) sent correctly but arrives after the bot's 2-second `expect()` window closes
+- [ ] If it's arriving late: this could be a buffering/flush issue on the bot side (unlikely, but the `read_all`/`_read_more` timeout logic is worth a skim) — or a genuine latency issue server-side worth knowing about regardless
+
+**Priority 4 — once P/T/M broadcast delivery is confirmed working, rerun the bot and revisit these individually if still failing**
+- M04/M05 (`+k`/`-k` exact formatting)
+- M29/M29-single/M30 (single-broadcast format — these should pass once delivery itself works, since we verified this logic together already)
+- M50/M51 (o-cap — same, logic was verified, only fails now because the broadcast likely never reached bob at all, per the pattern above)
+
+Start with Priority 0 — that one `nc` test will tell you whether this is 27 real bugs or 1 real bug amplified. If you want, paste your current PRIVMSG and TOPIC handler source and I'll review them the same way we did MODE.

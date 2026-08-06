@@ -59,7 +59,7 @@ void mode(int fd, std::vector<std::string> &s, Server &serv)
             modestr += "k";
             modeargs += " " + ch.get_key();
         }
-        if (ch.get_channel_size() > 0)
+        if (ch.get_channel_size() != 0)
         {
             modestr += "l";
             std::ostringstream oss;
@@ -92,7 +92,11 @@ void mode(int fd, std::vector<std::string> &s, Server &serv)
 
     size_t i = 0;
     int arg_idx = 3;
+    std::string applied_modes;
+    std::string applied_args;
+    char last_out_sign = 0;
     std::string sign_str;
+    int o_count = 0;
     while (i < s[2].size())
     {
             if (s[2][i] == '+' || s[2][i] == '-')
@@ -110,12 +114,12 @@ void mode(int fd, std::vector<std::string> &s, Server &serv)
                 else if (sign == '-')
                     ch.set_invite_only(false);
 
-                std::string send_M = ":" + clients_map[fd].getNickname()
-                                + "!" + clients_map[fd].getUsername()
-                                + "@ft_irc MODE " + s[1] + " " + sign_str + "i\r\n";
-                const std::vector<int> &m = ch.get_members();
-                for (std::vector<int>::const_iterator it = m.begin(); it != m.end(); ++it)
-                    send(*it, send_M.c_str(), send_M.size(), 0);
+                if (last_out_sign != sign)
+                {
+                    applied_modes += sign;
+                    last_out_sign = sign;
+                }
+                applied_modes += 'i';
                 ///
                 i++;
                 continue; //return;
@@ -127,12 +131,12 @@ void mode(int fd, std::vector<std::string> &s, Server &serv)
                 else if (sign == '-')
                     ch.set_Topic_Restricted(false);
 
-                std::string send_M = ":" + clients_map[fd].getNickname()
-                                + "!" + clients_map[fd].getUsername()
-                                + "@ft_irc MODE " + s[1] + " " + sign_str + "t\r\n";
-                const std::vector<int> &m = ch.get_members();
-                for (std::vector<int>::const_iterator it = m.begin(); it != m.end(); ++it)
-                    send(*it, send_M.c_str(), send_M.size(), 0);
+                if (last_out_sign != sign)
+                {
+                    applied_modes += sign;
+                    last_out_sign = sign;
+                }
+                applied_modes += 't';
                 i++;
                 continue; //return;
             }
@@ -145,26 +149,30 @@ void mode(int fd, std::vector<std::string> &s, Server &serv)
                     {
                         std::string err = ":ft_irc 461 " + clients_map[fd].getNickname() + " MODE :Not enough parameters\r\n";
                         send(fd, err.c_str(), err.size(), 0);
-                       return;
+                        i++;
+                        continue; //return;
                     }
                     ch.set_key(s[arg_idx]);
 
-                    send_M = ":" + clients_map[fd].getNickname()
-                            + "!" + clients_map[fd].getUsername()
-                            + "@ft_irc MODE " + s[1] + " +k " + s[arg_idx] + "\r\n";
+                    if (last_out_sign != sign)
+                    {
+                        applied_modes += sign;
+                        last_out_sign = sign;
+                    }
+                    applied_modes += 'k';
+                    applied_args += " " + s[arg_idx];
                     arg_idx++;
                 }
                 else if (sign == '-')
                 {
                     ch.remove_key();
-                    send_M = ":" + clients_map[fd].getNickname()
-                        + "!" + clients_map[fd].getUsername()
-                        + "@ft_irc MODE " + s[1] + " -k *\r\n";
-                    // arg_idx++;
+                    if (last_out_sign != sign)
+                    {
+                        applied_modes += sign;
+                        last_out_sign = sign;
+                    }
+                    applied_modes += 'k';
                 }
-                const std::vector<int> &m = ch.get_members();
-                for (std::vector<int>::const_iterator it = m.begin(); it != m.end(); ++it)
-                    send(*it, send_M.c_str(), send_M.size(), 0);
                 i++;
                 continue; //return;
             }
@@ -174,8 +182,16 @@ void mode(int fd, std::vector<std::string> &s, Server &serv)
                 {
                     std::string err = ":ft_irc 461 " + clients_map[fd].getNickname() + " MODE :Not enough parameters\r\n";
                     send(fd, err.c_str(), err.size(), 0);
-                    return;
+                    i++;
+                    continue; //return;
                 }
+                if (o_count >= 3)
+                {
+                    arg_idx++;
+                    i++;
+                    continue;
+                }
+                o_count++;
                 std::string lnick = s[arg_idx];
                 int tfd = -1;
                 for (size_t i = 0; i < lnick.size(); i++)
@@ -216,13 +232,14 @@ void mode(int fd, std::vector<std::string> &s, Server &serv)
                 else if (sign == '-')
                     ch.pop_op(tfd);
                 
-                std::string send_M = ":" + clients_map[fd].getNickname()
-                                + "!" + clients_map[fd].getUsername()
-                                + "@ft_irc MODE " + s[1] + " " + sign_str + "o " + s[arg_idx] + "\r\n";
+                if (last_out_sign != sign)
+                {
+                    applied_modes += sign;
+                    last_out_sign = sign;
+                }
+                applied_modes += 'o';
+                applied_args += " " + s[arg_idx];
                 arg_idx++;
-                const std::vector<int> &m = ch.get_members();
-                for (std::vector<int>::const_iterator it = m.begin(); it != m.end(); ++it)
-                    send(*it, send_M.c_str(), send_M.size(), 0);
                 i++;
                 continue; //return;
                 
@@ -235,7 +252,8 @@ void mode(int fd, std::vector<std::string> &s, Server &serv)
                     {
                         std::string err = ":ft_irc 461 " + clients_map[fd].getNickname() + " MODE :Not enough parameters\r\n";
                         send(fd, err.c_str(), err.size(), 0);
-                        return;
+                        i++;
+                        continue; //return;
                     }
 
                     // check s[3] is not a valid number If not, send 461 or 472
@@ -272,25 +290,28 @@ void mode(int fd, std::vector<std::string> &s, Server &serv)
                         continue; //return;
                     } 
                     ch.set_channel_size(size_int);
+
+
+                    if (last_out_sign != sign)
+                    {
+                        applied_modes += sign;
+                        last_out_sign = sign;
+                    }
+                    applied_modes += 'l';
                     std::ostringstream oss;
                     oss << size_int;
-                    std::string send_M = ":" + clients_map[fd].getNickname()
-                                + "!" + clients_map[fd].getUsername()
-                                + "@ft_irc MODE " + s[1]  + " +l " + oss.str() +"\r\n";
+                    applied_args += " " + oss.str();
                     arg_idx++;
-                    const std::vector<int> &m = ch.get_members();
-                    for (std::vector<int>::const_iterator it = m.begin(); it != m.end(); ++it)
-                        send(*it, send_M.c_str(), send_M.size(), 0);
                 }
                 else if (sign == '-')
                 {
-                    ch.set_channel_size(-1);
-                    std::string send_M = ":" + clients_map[fd].getNickname()
-                                + "!" + clients_map[fd].getUsername()
-                                + "@ft_irc MODE " + s[1]  + " -l\r\n";
-                    const std::vector<int> &m = ch.get_members();
-                    for (std::vector<int>::const_iterator it = m.begin(); it != m.end(); ++it)
-                        send(*it, send_M.c_str(), send_M.size(), 0);
+                    ch.set_channel_size(0);
+                    if (last_out_sign != sign)
+                    {
+                        applied_modes += sign;
+                        last_out_sign = sign;
+                    }
+                    applied_modes += 'l';
 
                 }
                 i++;
@@ -305,8 +326,16 @@ void mode(int fd, std::vector<std::string> &s, Server &serv)
             }
     }
 
+    if (!applied_modes.empty())
+    {
+        std::string send_M = ":" + clients_map[fd].getNickname()
+                           + "!" + clients_map[fd].getUsername()
+                           + "@"+ clients_map[fd].getHost() + " MODE " + s[1] + " " + applied_modes + applied_args + "\r\n";
+        const std::vector<int> &m = ch.get_members();
+        for (std::vector<int>::const_iterator it = m.begin(); it != m.end(); ++it)
+            send(*it, send_M.c_str(), send_M.size(), 0);
+    }
 }
-
 
 
 

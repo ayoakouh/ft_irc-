@@ -7,7 +7,7 @@ Channel::Channel(void)
 }
 
 Channel::Channel(std::string &channel_name)
-	:name(channel_name), invite_only(false), is_key(false), channel_size(-1), topic(""), topic_restricted(false)
+	:name(channel_name), invite_only(false), is_key(false), channel_size(0), topic(""), topic_restricted(false)
 {
 	std::cout << "Channel parametrized constructor.\n";//must be removed after
 }
