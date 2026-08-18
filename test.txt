@@ -1,0 +1,20 @@
+i do JOIN #A
+:NICKY!1@127.0.0.1 JOIN #A
+:ft_irc 331 NICKY #A :No topic is set
+:ft_irc 353 NICKY = #A :@NICKY
+:ft_irc 366 NICKY #A :End of /NAMES list
+JOIN #A
+:NICKY!1@127.0.0.1 JOIN #A
+:ft_irc 331 NICKY #A :No topic is set
+:ft_irc 353 NICKY = #A :@NICKY
+:ft_irc 366 NICKY #A :End of /NAMES list
+it should do nothing
+=======================================
+KICK NICKY #A
+:ft_irc 401 NICKY #A :No such nick/channel
+:ft_irc 403 NICKY NICKY :No such channel
+KICK #A nicky
+:ft_irc 401 NICKY nicky :No such nick/channel
+problem with kick
+=========================================
+

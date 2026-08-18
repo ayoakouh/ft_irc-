@@ -11,6 +11,9 @@ Channel::Channel(std::string &channel_name)
 {
 	std::cout << "Channel parametrized constructor.\n";//must be removed after
 }
+
+// cahnnnles.insert(Channel())
+
 Channel::~Channel(void)
 {
 	std::cout << "Destructor Channel.\n";
@@ -108,7 +111,7 @@ const std::string &Channel::get_name(void)
 {
 	return (name);
 }
-const std::vector<int> &Channel::get_members(void)
+std::vector<int> &Channel::get_members(void)
 {
 	return (members);
 }
@@ -139,10 +142,10 @@ std::string Channel::getTopic()
 	return topic;
 }
 
-void Channel::setTopic(const std::string &new_topic)
-{
-	topic = new_topic;
-}
+// void Channel::setTopic(const std::string &new_topic)
+// {
+// 	topic = new_topic;
+// }
 
 bool Channel::isTopicRestricted()
 {
@@ -176,4 +179,40 @@ void Channel::remove_key()
 void Channel::set_channel_size(int new_size)
 {
 	channel_size = new_size;
-}  
+}
+
+void Channel::set_bool_key()
+{
+	is_key = true;
+}
+
+void Channel::set_channel_members(std::string &name, bool b)
+{
+	channel_members[name] = b;
+}
+
+std::map<std::string, bool> &Channel::get_channel_members(void)
+{
+	return (channel_members);
+}
+
+void Channel::setTopic(const std::string &new_topic, const std::string &new_topic_setter)
+{
+    topic = new_topic;
+    topic_setter = new_topic_setter;
+    timestamp_for_last_topic_set = std::time(NULL); 
+}
+
+std::string &Channel::get_topic_setter(void)
+{
+	return (topic);
+}
+
+std::string Channel::get_timestamp(void)
+{
+	std::string word;
+	std::stringstream ss;
+	ss << timestamp_for_last_topic_set;
+	word = ss.str();
+	return (word);
+}

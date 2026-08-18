@@ -112,6 +112,9 @@
 #include "Channel.hpp"
 #include "Client.hpp"
 
+#include "Channel.hpp"
+#include "Client.hpp"
+
 
 #define MAX_EVENTS 64
 class Server {
