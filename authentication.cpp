@@ -14,11 +14,34 @@ void TryRegister(Client& client)
     }
     if(!client.IsRegistered() && client.isAuthenticated() && !client.getNickname().empty() && !client.getUsername().empty())
     {
-        std::cout<<"is good>>\n";
         client.SetRegistered(true);
-        SendMessage(client.getFd(), ":server 001 " + client.getNickname() + " :Welcom to IRC\r\n");
+        std::string serverName = "irc.server.com";
+        std::string nickName = client.getNickname();
+        std::string netName = "MyIRCNetwork";
+        std::string Version = "1.0";
+        std::string user = client.getUsername();
+        SendMessage(client.getFd(), ":" + serverName + " 001 " + 
+        nickName +  " :Welcome to the " + netName + " Network, "
+            + nickName + "!" + user + "@localhost\r\n");
+        SendMessage(client.getFd(), ":" + serverName + " 002 " + 
+        nickName +  " :Your host is " + serverName + " running Version "
+            + Version + "\r\n");
+        SendMessage(client.getFd(), ":" + serverName + " 003 " + 
+        nickName +  " :This server was created ");
+        SendMessage(client.getFd(), ":" + serverName + " 004 " + 
+        nickName +  " " + serverName + " " + Version + " o " + "itkol\r\n");
+        SendMessage(client.getFd(),
+        ":" + serverName + " 005 " + nickName +
+        " NICKLEN=30 CHANNELLEN=50 CHANTYPES=# PREFIX=(o)@"
+        " :are supported by this server\r\n");
+        SendMessage(client.getFd(),
+            ":" + serverName + " 422 " + nickName +
+            " :MOTD File is missing\r\n");
+        std::cout << "Client registered: " << nickName << "\n";    
     }
 }
+
+
 
 
 void pass(int fd, std::vector<std::string> &s, Server& serv)

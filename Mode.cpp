@@ -24,6 +24,11 @@ void mode(int fd, std::vector<std::string> &s, Server &serv)
         send(fd, err_size.c_str(), err_size.size() , 0);
         return;
     }
+
+
+    if (s[1][0] != '#')
+        return;
+
     std::string ltarget = s[1];
     for (size_t i = 0; i < ltarget.size(); i++)
         ltarget[i] = std::tolower(ltarget[i]);
