@@ -86,7 +86,7 @@ void kick(unsigned int fd, std::vector<std::string> &s, Server &serv)
 	{
 		for (std::map<int, Client>::iterator it = clients_map.begin(); it != clients_map.end(); it++)
 		{
-			if (it->second.getNickname() == users[i])
+			if (ft_lower_input(it->second.getNickname()) == ft_lower_input(users[i]))
 			{
 				target_fd = it->first;
 				break;

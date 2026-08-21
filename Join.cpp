@@ -247,21 +247,21 @@ void join(unsigned int fd, std::vector<std::string> &s, Server &serv)
 		}
 		if (!check)
 		{
-			channels[channels_origins[i]] = Channel(channels_origins[i]);
-			channels[channels_origins[i]].add(fd);
-			channels[channels_origins[i]].become_op(fd);
+			channels[channels_name[i]] = Channel(channels_origins[i]);
+			channels[channels_name[i]].add(fd);
+			channels[channels_name[i]].become_op(fd);
 			if (i < channels_key.size())
 			{
-				channels[channels_origins[i]].set_key(channels_key[i]);
+				channels[channels_name[i]].set_key(channels_key[i]);
 			}
-			channels[channels_origins[i]].set_channel_members(nick, true);
-			err = ":" + nick + "!" + user + "@" + host + " JOIN " + channels_origins[i] + "\r\n";
+			channels[channels_name[i]].set_channel_members(nick, true);
+			err = ":" + nick + "!" + user + "@" + host + " JOIN " + channels_name[i] + "\r\n";
 			send(fd, err.c_str(), err.size() , 0);
-			ft_errors(8, fd, nick, channels_origins[i], nick);
+			ft_errors(8, fd, nick, channels_name[i], nick);
 			names = '@' + nick;
-			err = ":ft_irc 353 " + nick + " = " + channels_origins[i] + " :" + names + "\r\n";
+			err = ":ft_irc 353 " + nick + " = " + channels_name[i] + " :" + names + "\r\n";
 			send(fd, err.c_str(), err.size() , 0);
-			ft_errors(9, fd, nick, channels_origins[i], nick);
+			ft_errors(9, fd, nick, channels_name[i], nick);
 		}
 		check = 0;
 
